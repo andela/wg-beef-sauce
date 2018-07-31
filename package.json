@@ -10,12 +10,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wger-project/wger/wger.git"
+    "url": "git+https://github.com/andela/wg-beef-sauce.git"
   },
   "author": "",
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/wger-project/wger/issues"
+    "url": "https://github.com/andela/wg-beef-sauce/issues"
   },
   "homepage": "https://github.com/wger-project/wger",
   "devDependencies": {
