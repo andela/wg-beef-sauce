@@ -28,3 +28,6 @@ django-cors-headers
 
 # Python3 compatibility
 six
+
+# Handle DATABASE_URL in heroku
+dj-database-url
