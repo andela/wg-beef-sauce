@@ -4,7 +4,7 @@
 
 Django>=1.9,<1.10
 django-recaptcha
-reportlab
+reportlab==3.4
 django_mobile
 django-formtools>=1.0,<1.1
 bleach
@@ -22,7 +22,7 @@ requests
 
 # REST API
 djangorestframework>=3.2,<3.3
-django-filter
+django-filter>=1.1,<2.0
 django-tastypie
 django-cors-headers
 
