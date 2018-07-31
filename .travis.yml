@@ -40,7 +40,7 @@ install:
   # Install requirements
   - pip install -r requirements_devel.txt
   - npm install
-  - npm install gulp
+  - npm install -g gulp-cli
   - if [[ "$DB" = "postgresql" ]]; then pip install psycopg2; fi
 
   # Setup application
