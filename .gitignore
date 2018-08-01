@@ -50,6 +50,7 @@ coverage.xml
 *.log
 settings*.py
 *.sqlite
+*.postgres
 /CACHE
 
 # Sphinx documentation
