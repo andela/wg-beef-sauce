@@ -69,3 +69,9 @@ script:
 
 after_success:
   - coveralls
+
+# Notifications
+ notifications:
+    slack:
+        rooms:
+          - secure: "TtVC+e3aJ7rQsLz27nBv6ROBzy59H9570J2AzvFNurC1G2lz5vlX+UQyoMhAX3GldlnYbYXnh6ibO70Q6YJaLDkQ+EiU/221ei04FDHBrsF5a/k0ekaHVhG11LifMHGcvbMkwguEjzqWkDB4RYFs1A7TJ1DPzubNEtyAIoFupynRR6O5aa0Mp0BYthHxqqcqMQgFzqLEHguUQ/8j9DMvbGlm/DHxLebU/9MSkm5H3q7VV6NY8UQ5oREM2GpFPkJ96JGvjeHBhZamKSs04iY4NEK0dWGxaC3vg67dUDu0rLVZVsezIMtJAfFJw/eD9u9RaAy1avv58pR+FeJL85L/E438r/2Dvt8vzer+G/bLQj7T+xSHXLMvQ3F4rVHtTroQBvRNNQBZENSPdJe6CR8MsDEdq7PByoC+vmSlVOV5vcNESPnBcfOvec+rg7K34GOgpyWHsgfxaNRtHsIrAXcetmWLzyMn0yRJ0S/NUCRGD1bCX2Aj7o1c7lIyKSgeerRbRI/mFo9RKN80yVMfwLBfApR4RoKBExkRBXjcibU7diBlFjqZD6YKB+x291nuwVFkUpu43t17QScCiAMDK74h9u2NaUMQCyRfuPbYrc2LBmhe1Oi7IUncHbTVGxL9cCP+YVBKXikdeNQ0ib/aB9rEEJ1N2Ouv3zqc/e3naK8scBg="
