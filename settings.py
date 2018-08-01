@@ -17,13 +17,16 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': dj_database_url.config() or 'wger',
+        'NAME': 'wger',
         'USER': 'postgres',
         'PASSWORD': '',
         'HOST': '',
         'PORT': '',
     }
 }
+
+if os.environ.get("TRIGGER") == "True":
+    DATABASES["default"] = dj_database_url.config()
 
 
 # Make this unique, and don't share it with anybody.

@@ -32,3 +32,6 @@ six
 # Handle DATABASE_URL in heroku
 dj-database-url
 psycopg2-binary
+
+# Run the static files
+whitenoise
