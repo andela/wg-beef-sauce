@@ -3,6 +3,7 @@
 
 from wger.settings_global import *
 import os
+import dj_database_url
 
 # Use 'DEBUG = True' to get more details for server errors
 DEBUG = True
@@ -17,7 +18,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("DATABASE_URL") or '',
+        'NAME': os.environ.get("Database") or '',
         'USER': os.environ.get("User") or '',
         'PASSWORD': os.environ.get("Password") or '',
         'HOST': os.environ.get("Host") or '',
@@ -25,6 +26,7 @@ DATABASES = {
     }
 }
 
+DATABASES['default'] = dj_database_url.config()
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'f09+dxtu#6w8z#m+n16%5akl06nn3(c92p^k*ev!0w2(e32gts'
