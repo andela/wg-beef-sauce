@@ -7,7 +7,12 @@
 <script>
 $(document).ready( function () {
     /* Make table sortable */
-    $('#main_member_list').DataTable({
+    $('#active_member_list').DataTable({
+        paging: false,
+        bFilter: true,
+        bInfo : false
+    });
+    $('#inactive_member_list').DataTable({
         paging: false,
         bFilter: true,
         bInfo : false
@@ -41,7 +46,7 @@ function openTab(evt, tabName) {
     </div>
 
     <div id="Active" class="w3-container tab" >
-        <table class="table table-hover" id="main_member_list">
+        <table class="table table-hover" id="active_member_list">
         <thead>
         <tr>
             {% for key in user_table.keys %}
@@ -83,7 +88,7 @@ function openTab(evt, tabName) {
         </table>
     </div>
     <div id="Inactive" class="w3-container tab" style="display:none">
-        <table class="table table-hover" id="main_member_list">
+        <table class="table table-hover" id="inactive_member_list">
             <thead>
                 <tr>
                     {% for key in user_table.keys %}
