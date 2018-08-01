@@ -39,3 +39,6 @@ whitenoise
 # Heroku django
 
 django-heroku
+
+# Gunicorn
+gunicorn
