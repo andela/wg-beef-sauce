@@ -35,3 +35,7 @@ psycopg2-binary
 
 # Run the static files
 whitenoise
+
+# Heroku django
+
+django-heroku

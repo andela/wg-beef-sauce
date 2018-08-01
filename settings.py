@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from wger.settings_global import *
-import dj_database_url
+import os
 
 # Use 'DEBUG = True' to get more details for server errors
 DEBUG = True
@@ -17,16 +17,13 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'wger',
-        'USER': 'postgres',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
+        'NAME': os.environ.get("DATABASE_URL") or 'wger',
+        'USER': os.environ.get("User") or 'postgres',
+        'PASSWORD': os.environ.get("Password") or '',
+        'HOST': os.environ.get("Host") or '',
+        'PORT': '5432',
     }
 }
-
-if os.environ.get("TRIGGER") == "True":
-    DATABASES["default"] = dj_database_url.config()
 
 
 # Make this unique, and don't share it with anybody.
