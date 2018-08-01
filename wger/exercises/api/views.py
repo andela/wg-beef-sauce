@@ -64,6 +64,26 @@ class ExerciseViewSet(viewsets.ModelViewSet):
                      'name',
                      'equipment',
                      'license',
+                     'license_author',)
+
+
+class ExerciseinfoViewSet(viewsets.ReadOnlyModelViewSet):
+    '''
+    API endpoint for exerciseinfo objects
+    '''
+    queryset = Exercise.objects.all()
+    serializer_class = ExerciseSerializer
+    ordering_fields = '__all__'
+    filter_fields = ('category',
+                     'creation_date',
+                     'description',
+                     'language',
+                     'muscles',
+                     'muscles_secondary',
+                     'status',
+                     'name',
+                     'equipment',
+                     'license',
                      'license_author')
 
     def perform_create(self, serializer):
