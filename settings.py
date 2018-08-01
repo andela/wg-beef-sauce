@@ -18,8 +18,8 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("Database") or '',
-        'USER': os.environ.get("User") or '',
+        'NAME': os.environ.get("Database") or 'wger',
+        'USER': os.environ.get("User") or 'postgres',
         'PASSWORD': os.environ.get("Password") or '',
         'HOST': os.environ.get("Host") or '',
         'PORT': '5432',
