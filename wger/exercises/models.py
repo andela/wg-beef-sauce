@@ -195,8 +195,6 @@ class Exercise(AbstractSubmissionModel, AbstractLicenseModel, models.Model):
                                        blank=True)
     '''Equipment needed by this exercise'''
 
-    
-
     creation_date = models.DateField(_('Date'),
                                      auto_now_add=True,
                                      null=True,
