@@ -178,7 +178,7 @@ class Exercise(AbstractSubmissionModel, AbstractLicenseModel, models.Model):
                                      verbose_name=_('Name'),
                                      default='')
     '''The exercise's name, as entered by the user'''
-    
+
     muscles = models.ManyToManyField(Muscle,
                                      blank=True,
                                      verbose_name=_('Primary muscles'))
