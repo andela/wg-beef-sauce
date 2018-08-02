@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from wger.settings_global import *
+import dj_database_url
 
 # Use 'DEBUG = True' to get more details for server errors
 DEBUG = True
@@ -23,6 +24,9 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
+if os.environ.get("TRIGGER") == "True":
+    DATABASES["default"] = dj_database_url.config()
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '=owa*=(u%^*s+!h65+95a2ys=uxv#2*9$24#2###69wem%w(_n'
