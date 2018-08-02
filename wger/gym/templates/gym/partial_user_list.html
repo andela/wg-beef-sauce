@@ -1,54 +1,81 @@
 {% load i18n staticfiles %}
 
 <link rel="stylesheet" type="text/css" href="{% static 'bower_components/datatables/media/css/dataTables.bootstrap.min.css' %}">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> 
 <script src="{% static 'bower_components/datatables/media/js/jquery.dataTables.min.js' %}" ></script>
 <script src="{% static 'bower_components/datatables/media/js/dataTables.bootstrap.min.js' %}" ></script>
 <script>
 $(document).ready( function () {
     /* Make table sortable */
-    $('#main_member_list').DataTable({
+    $('#active_member_list, #inactive_member_list').DataTable({
         paging: false,
         bFilter: true,
         bInfo : false
     });
 });
+
+function openTab(evt, tabName) {
+    /* Script to open the different tabs with Active and Inactive Users*/
+    var i, x, tablinks;
+    x = document.getElementsByClassName("tab");
+    for (i = 0; i < x.length; i++) {
+        x[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablink");
+    for (i = 0; i < x.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" w3-border-blue", "");
+    }
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.firstElementChild.className += " w3-border-blue";
+}
 </script>
 
-<table class="table table-hover" id="main_member_list">
-<thead>
-<tr>
-    {% for key in user_table.keys %}
-        <th>{{ key }}</th>
-    {% endfor %}
-</tr>
-</thead>
-<tbody>
-{% for current_user in user_table.users %}
-<tr>
-    <td>
-        {{current_user.obj.pk}}
-    </td>
-    <td>
-        <a href="{% url 'core:user:overview' current_user.obj.pk %}">{{current_user.obj}}</a>
-    </td>
-    <td>
-        {{current_user.obj.get_full_name}}
-    </td>
-    <td data-order="{{current_user.last_log|date:'U'}}">
-        {{current_user.last_log|default:'-/-'}}
-    </td>
-    {% if show_gym %}
-    <td>
-        {% if current_user.obj.userprofile.gym_id %}
-            <a href="{{ current_user.obj.userprofile.gym.get_absolute_url }}">
-            {{ current_user.obj.userprofile.gym }}
-            </a>
-        {% else %}
-            -/-
-        {% endif %}
-    </td>
-    {% endif %}
-</tr>
-{% endfor %}
-</tbody>
-</table>
+<div class="w3-container">
+  
+    <div class="w3-row w3-padding-32">
+        <a href="javascript:void(0)" onclick="openTab(event, 'Active');">
+            <div class="w3-third tablink w3-bottombar w3-hover-light-grey w3-padding w3-border-blue">Active Users</div>
+        </a>
+        <a href="javascript:void(0)" onclick="openTab(event, 'Inactive');">
+            <div class="w3-third tablink w3-bottombar w3-hover-light-grey w3-padding">Inactive Users</div>
+        </a>
+    </div>
+
+    <div id="Active" class="w3-container tab" >
+        <table class="table table-hover" id="active_member_list">
+        <thead>
+        <tr>
+            {% for key in user_table.keys %}
+                <th>{{ key }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+            <tbody>
+            {% for current_user in user_table.users %}
+                {% if current_user.obj.is_active == True %}
+                    {% include 'gym/partial_user_table.html' %}
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="Inactive" class="w3-container tab" style="display:none">
+        <table class="table table-hover" id="inactive_member_list">
+            <thead>
+                <tr>
+                    {% for key in user_table.keys %}
+                        <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+            {% for current_user in user_table.users %}
+                {% if current_user.obj.is_active == False %}
+                    {% include 'gym/partial_user_table.html' %}
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
