@@ -3,7 +3,7 @@
     "description": "Self hosted FLOSS fitness/workout and weight tracker",
     "main": "",
     "license": "AGPL-3.0",
-    "homepage": "https://github.com/andela/wg-leo",
+    "homepage": "https://github.com/andela/wg-beef-sauce",
     "ignore": [
       "**/.*",
       "node_modules",
