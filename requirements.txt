@@ -28,3 +28,10 @@ django-cors-headers
 
 # Python3 compatibility
 six
+
+
+psycopg2==2.7.0
+
+gunicorn==19.9.0
+
+whitenoise==3.3.1
