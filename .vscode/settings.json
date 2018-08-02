@@ -1,0 +1,11 @@
+{
+    "python.pythonPath": "${workspaceFolder}/venv-wger/bin/python",
+    "cSpell.words": [
+        "captcha",
+        "key",
+        "nocaptcha",
+        "public",
+        "re",
+        "recaptcha"
+    ]
+}
