@@ -57,18 +57,6 @@ class ExerciseImageSerializer(serializers.ModelSerializer):
         model = ExerciseImage
 
 
-class ExerciseInfoSerializer(serializers.ModelSerializer):
-    '''
-    Exercise info serializer
-    '''
-
-    class Meta:
-        model = Exercise
-        depth = 3
-        fields = ("name", "category", "description", "muscles",
-                  "muscles_secondary", "equipment")
-
-
 class ExerciseCommentSerializer(serializers.ModelSerializer):
     '''
     ExerciseComment serializer
