@@ -32,3 +32,5 @@ six
 gunicorn
 
 whitenoise
+
+psycopg2
