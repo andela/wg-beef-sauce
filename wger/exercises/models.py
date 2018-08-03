@@ -172,7 +172,7 @@ class Exercise(AbstractSubmissionModel, AbstractLicenseModel, models.Model):
 
     name = models.CharField(max_length=200,
                             verbose_name=_('Name'))
-    '''The exercise's name, with correct upercase'''
+    '''The exercise's name, with correct uppercase'''
 
     name_original = models.CharField(max_length=200,
                                      verbose_name=_('Name'),
@@ -428,10 +428,10 @@ class ExerciseImage(AbstractSubmissionModel, AbstractLicenseModel, models.Model)
                 .filter(is_main=False) \
                 .count():
 
-                image = ExerciseImage.objects.accepted() \
-                    .filter(exercise=self.exercise, is_main=False)[0]
-                image.is_main = True
-                image.save()
+            image = ExerciseImage.objects.accepted() \
+                .filter(exercise=self.exercise, is_main=False)[0]
+            image.is_main = True
+            image.save()
 
     def get_owner_object(self):
         '''
