@@ -14,7 +14,11 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 
+import os
 import logging
+import base64
+import requests
+import fitbit
 
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponseForbidden
@@ -310,11 +314,46 @@ def preferences(request):
 @login_required
 def fitbit(request):
     '''
-    An overview of all user preferences
+    Add fitbit integration
     '''
     template_data = {}
-    template_data.update(csrf(request))
-    redirect = False
+    fitbit_id = os.getenv('FITAPP_CONSUMER_KEY')
+    fitbit_secret_key = os.getenv('FITAPP_CONSUMER_SECRET')
+    callback_url = os.getenv('CALLBACKURL')
+    fitbit_scope = 'settings'
+    get_fitbit = f'https://www.fitbit.com/oauth2/authorize?client_id={fitbit_id}&response_type=code&scope={fitbit_scope}&redirect_uri={callback_url}'
+
+    if 'code' in request.GET:
+        code = request.GET.get('code', '')
+        client_secret = f'{fitbit_id}:{fitbit_secret_key}'
+
+        # Convert client secret key to bytes then to base64 for fitbit token
+        client_secret = client_secret.encode('utf-8')
+        b64_code = base64.b64encode(client_secret).decode('utf-8')
+
+        # custom headers for fitbit
+        headers = {
+            'Authorization': f'Basic {b64_code}',
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+        # parameters for fitbit api request
+        params = {
+            'client_id': fitbit_id,
+            'client_secret': fitbit_secret_key,
+            'code': code,
+            'grant_type': 'authorization_code',
+            'redirect_uri': callback_url
+        }
+
+        post_fitbit = requests.post(
+            'https://api.fitbit.com/oauth2/token',
+            params,
+            headers=headers
+        )
+
+        print(f'Hhahhhhaaaaaaa -offfffffdfff - {post_fitbit.content}')
+
+    template_data.update({'fitbit_link': get_fitbit})
 
     return render(request, 'user/fitbit.html', template_data)
 
