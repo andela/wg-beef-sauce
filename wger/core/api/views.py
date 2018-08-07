@@ -17,8 +17,13 @@
 
 from django.contrib.auth.models import User
 from rest_framework import viewsets
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
+from rest_framework.parsers import JSONParser
+from rest_framework import status
+
+from wger.config.models import GymConfig
 
 from wger.core.models import (
     UserProfile,
@@ -33,8 +38,12 @@ from wger.core.api.serializers import (
     DaysOfWeekSerializer,
     LicenseSerializer,
     RepetitionUnitSerializer,
-    WeightUnitSerializer
+    WeightUnitSerializer,
+    UserSerializer
 )
+
+from wger.gym.models import GymUserConfig
+
 from wger.core.api.serializers import UserprofileSerializer
 from wger.utils.permissions import UpdateOnlyPermission, WgerPermission
 
@@ -68,6 +77,42 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
         user = self.get_object().user
         return Response(UsernameSerializer(user).data)
+
+
+class UserCreateView(APIView):
+    """
+    API endpoint for creating a new user
+    """
+
+    def post(self, request):
+        data = JSONParser().parse(request)
+        # print(data)
+
+        if data["password"] and data["confirm_password"] and \
+            data["password"] != data["confirm_password"]:
+                return Response({"msg": "password mismatch"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_serializer = UserSerializer(data=data)
+        if user_serializer.is_valid():
+            u = user_serializer.data
+            user = User.objects.create_user(u["username"], u["email"], u["password"])
+            user.save()
+
+            gym_config = GymConfig.objects.get(pk=1)
+            if gym_config.default_gym:
+                user.userprofile.gym = gym_config.default_gym
+
+                # Create gym user configuration object
+                config = GymUserConfig()
+                config.gym = gym_config.default_gym
+                config.user = user
+                config.save()
+
+            user.userprofile.save()
+
+            return Response(user_serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LanguageViewSet(viewsets.ReadOnlyModelViewSet):

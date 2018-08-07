@@ -24,6 +24,8 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
 
+# from rest_framework.urlpatterns import format_suffix_patterns
+
 from wger.nutrition.sitemap import NutritionSitemap
 from wger.exercises.sitemap import ExercisesSitemap
 
@@ -103,6 +105,7 @@ router.register(r'setting-repetitionunit', core_api_views.RepetitionUnitViewSet,
                 base_name='setting-repetition-unit')
 router.register(r'setting-weightunit', core_api_views.WeightUnitViewSet,
                 base_name='setting-weight-unit')
+# router.register(r'usercreate', core_api_views.UserCreateViewSet, base_name='usercreate')
 
 # Exercises app
 router.register(r'exercise', exercises_api_views.ExerciseViewSet, base_name='exercise')
@@ -178,8 +181,10 @@ urlpatterns += [
         nutrition_api_views.search,
         name='ingredient-search'),
     url(r'^api/v2/', include(router.urls)),
+    url(r'^api/v2/usercreate', core_api_views.UserCreateView.as_view(), name='usercreate'),
 ]
 
+# urlpatterns = format_suffix_patterns(urlpatterns)
 #
 # URL for user uploaded files, served like this during development only
 #
