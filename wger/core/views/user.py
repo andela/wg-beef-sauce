@@ -307,6 +307,18 @@ def preferences(request):
         return render(request, 'user/preferences.html', template_data)
 
 
+@login_required
+def fitbit(request):
+    '''
+    An overview of all user preferences
+    '''
+    template_data = {}
+    template_data.update(csrf(request))
+    redirect = False
+
+    return render(request, 'user/fitbit.html', template_data)
+
+
 class UserDeactivateView(LoginRequiredMixin,
                          WgerMultiplePermissionRequiredMixin,
                          RedirectView):

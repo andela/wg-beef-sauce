@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n staticfiles wger_extras %}
+
+{% block title %}{% trans "Fitbit Integration" %}{% endblock %}
+
+{% block content %}
+<div class="well well-lg">
+{% blocktrans %}
+Integrating Fitbit will allow your account to access you weight information from Fitbit and display it in Wger.
+{% endblocktrans %}
+<br/><br/>
+<button type="button" class="btn btn-info">Link To Fitbit</button>
+</div>
+{% endblock %}
+
+
+{% block sidebar %}
+{% endblock %}
