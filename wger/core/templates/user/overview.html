@@ -308,7 +308,13 @@
     </tr>
      <tr>
         <td>{% trans "created by" %}</td>
-        <td>{{current_user.userprofile.creator}}</td>
+         <td>
+             {% if current_user.userprofile.creator %}
+                {{ current_user.userprofile.creator }}
+            {% else %}
+                {{current_user.username}}
+            {% endif %}
+         </td>
     </tr>
     <tr>
         <td>{% trans "Last login" %}</td>
