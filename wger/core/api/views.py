@@ -80,22 +80,28 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
 
 class UserCreateView(APIView):
-    """
-    API endpoint for creating a new user
-    """
+    """API endpoint for creating a new user"""
 
     def post(self, request):
+        """
+        Crete new user instance.
+
+        :param request: request object
+        :return:Response object
+        """
         data = JSONParser().parse(request)
         # print(data)
 
+        # Check if password equal to confirm_password.
         if data["password"] and data["confirm_password"] and \
-            data["password"] != data["confirm_password"]:
-                return Response({"msg": "password mismatch"}, status=status.HTTP_400_BAD_REQUEST)
+                data["password"] != data["confirm_password"]:
+            return Response({"msg": "password mismatch"}, status=status.HTTP_400_BAD_REQUEST)
 
         user_serializer = UserSerializer(data=data)
         if user_serializer.is_valid():
             u = user_serializer.data
-            user = User.objects.create_user(u["username"], u["email"], u["password"])
+            email = u.get("email") or ""
+            user = User.objects.create_user(u["username"], email, u["password"])
             user.save()
 
             gym_config = GymConfig.objects.get(pk=1)
