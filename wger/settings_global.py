@@ -86,6 +86,9 @@ INSTALLED_APPS = (
 
     # django-bower for installing bower packages
     'djangobower',
+
+    # Social login
+    'social_django'
 )
 
 # added list of external libraries to be installed by bower
@@ -127,11 +130,15 @@ MIDDLEWARE_CLASSES = (
     # Django mobile
     'django_mobile.middleware.MobileDetectionMiddleware',
     'django_mobile.middleware.SetFlavourMiddleware',
+
+    # Social Auth
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 )
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'wger.utils.helpers.EmailAuthBackend'
+    'wger.utils.helpers.EmailAuthBackend',
+    'social_core.backends.facebook.FacebookOAuth2',
 )
 
 TEMPLATES = [
@@ -155,7 +162,11 @@ TEMPLATES = [
                 'django_mobile.context_processors.flavour',
 
                 # Breadcrumbs
-                'django.template.context_processors.request'
+                'django.template.context_processors.request',
+
+                # Social Auth
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect'
             ],
             'loaders': [
                 # Django mobile
@@ -371,3 +382,6 @@ WGER_SETTINGS = {
     'EMAIL_FROM': 'wger Workout Manager <wger@example.com>',
     'TWITTER': False
 }
+
+SOCIAL_AUTH_FACEBOOK_KEY = os.getenv('FB_KEY')
+SOCIAL_AUTH_FACEBOOK_SECRET = os.getenv('FB_SECRET')
