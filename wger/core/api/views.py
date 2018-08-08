@@ -106,7 +106,6 @@ class UserCreateViewSet(viewsets.ViewSet):
         user_serializer = UserSerializer(data=data)
         if user_serializer.is_valid():
             creator = User.objects.get(pk=Token.objects.get(key=request.auth).user_id)
-            print(creator)
             u = user_serializer.data
             email = u.get("email") or ""
             user = User.objects.create_user(u["username"], email, u["password"])
@@ -125,8 +124,9 @@ class UserCreateViewSet(viewsets.ViewSet):
                 config.save()
 
             user.userprofile.save()
+            msg = {"msg": "Successfully created user: {}" .format(user_serializer.data['username'])}
 
-            return Response(user_serializer.data, status=status.HTTP_201_CREATED)
+            return Response(msg, status=status.HTTP_201_CREATED)
 
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
