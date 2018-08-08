@@ -13,6 +13,12 @@
       class="form-horizontal">
     {% trans 'Login' as submit_text %}
     {% render_form_fields form submit_text %}
+    <div>
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+        <h2>Or Login Using</h2>
+        <hr>
+        <a href="{% url 'social:begin' 'facebook' %}"><i class="fab fa-facebook-square fa-5x"></i></a>
+    </div>
 </form>
 {% endblock %}
 
