@@ -24,6 +24,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework import status
 
 from wger.config.models import GymConfig
+from rest_framework.authtoken.models import Token
 
 from wger.core.models import (
     UserProfile,
@@ -82,6 +83,9 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 class UserCreateView(APIView):
     """API endpoint for creating a new user"""
 
+    # Protect endpoint from unauthorised access.
+    is_private = True
+
     def post(self, request):
         """
         Crete new user instance.
@@ -89,6 +93,8 @@ class UserCreateView(APIView):
         :param request: request object
         :return:Response object
         """
+        # print(request.user, request.auth)
+
         data = JSONParser().parse(request)
         # print(data)
 
@@ -103,6 +109,15 @@ class UserCreateView(APIView):
             email = u.get("email") or ""
             user = User.objects.create_user(u["username"], email, u["password"])
             user.save()
+
+            # # Update user profile registration flag(used to identify the mode of registration).
+            # user_profile = UserProfile.objects.get(user_id=user.id)
+            # print(user_profile.reg_flag_id, user_profile.calories)
+            # user_profile.calories = '99999'
+            # # user_profile.reg_flag = Token.objects.get(key=request.auth)
+            # # user_profile.calories = 300004444
+            # user_profile.save()
+            # print(user_profile.reg_flag, user_profile.id)
 
             gym_config = GymConfig.objects.get(pk=1)
             if gym_config.default_gym:

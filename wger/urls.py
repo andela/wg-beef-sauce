@@ -24,8 +24,6 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
 
-# from rest_framework.urlpatterns import format_suffix_patterns
-
 from wger.nutrition.sitemap import NutritionSitemap
 from wger.exercises.sitemap import ExercisesSitemap
 
@@ -184,7 +182,6 @@ urlpatterns += [
     url(r'^api/v2/usercreate', core_api_views.UserCreateView.as_view(), name='usercreate'),
 ]
 
-# urlpatterns = format_suffix_patterns(urlpatterns)
 #
 # URL for user uploaded files, served like this during development only
 #

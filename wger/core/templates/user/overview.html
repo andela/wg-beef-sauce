@@ -306,6 +306,10 @@
         <td>{% trans "Registered" %}</td>
         <td>{{current_user.date_joined}}</td>
     </tr>
+     <tr>
+        <td>{% trans "created by" %}</td>
+        <td>{{current_user.reg_flag_id}}</td>
+    </tr>
     <tr>
         <td>{% trans "Last login" %}</td>
         <td>{{current_user.last_login}}</td>

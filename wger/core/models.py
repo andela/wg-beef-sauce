@@ -25,6 +25,9 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+
+from rest_framework.authtoken.models import Token
+
 from wger.gym.models import Gym
 
 from wger.utils.constants import TWOPLACES
@@ -108,6 +111,12 @@ class UserProfile(models.Model):
     '''
     The user
     '''
+
+    # Indicate the registration source if user account created via external app.
+    reg_flag = models.ForeignKey(Token,
+                                 editable=True,
+                                 null=True,
+                                 blank=True)
 
     gym = models.ForeignKey(Gym,
                             editable=False,
