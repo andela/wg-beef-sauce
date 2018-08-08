@@ -19,6 +19,7 @@ import logging
 import base64
 import requests
 import fitbit
+import datetime
 
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponseForbidden
@@ -320,7 +321,7 @@ def fitbit(request):
     fitbit_id = os.getenv('FITAPP_CONSUMER_KEY')
     fitbit_secret_key = os.getenv('FITAPP_CONSUMER_SECRET')
     callback_url = os.getenv('CALLBACKURL')
-    fitbit_scope = 'settings'
+    fitbit_scope = 'weight'
     get_fitbit = f'https://www.fitbit.com/oauth2/authorize?client_id={fitbit_id}&response_type=code&scope={fitbit_scope}&redirect_uri={callback_url}'
 
     if 'code' in request.GET:
@@ -344,14 +345,24 @@ def fitbit(request):
             'grant_type': 'authorization_code',
             'redirect_uri': callback_url
         }
-
+        # retrieve fitbit access_token
         post_fitbit = requests.post(
             'https://api.fitbit.com/oauth2/token',
             params,
             headers=headers
-        )
+        ).json()
 
-        print(f'Hhahhhhaaaaaaa -offfffffdfff - {post_fitbit.content}')
+        if 'access_token' in post_fitbit:
+            headers['Authorization'] = f'Bearer {post_fitbit["access_token"]}'
+            user_id = post_fitbit['user_id']
+            period = '1w'
+            base_date = datetime.datetime.today().strftime('%Y-%m-%d')
+
+            # get request to retrieve weight data for the user
+            get_weight_data = requests.get(
+                f'https://api.fitbit.com/1/user/{user_id}/body/log/weight/date/{base_date}/{period}.json',
+                headers=headers
+            ).json()
 
     template_data.update({'fitbit_link': get_fitbit})
 
