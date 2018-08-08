@@ -109,15 +109,9 @@ class UserCreateView(APIView):
             email = u.get("email") or ""
             user = User.objects.create_user(u["username"], email, u["password"])
             user.save()
-
-            # # Update user profile registration flag(used to identify the mode of registration).
-            # user_profile = UserProfile.objects.get(user_id=user.id)
-            # print(user_profile.reg_flag_id, user_profile.calories)
-            # user_profile.calories = '99999'
-            # # user_profile.reg_flag = Token.objects.get(key=request.auth)
-            # # user_profile.calories = 300004444
-            # user_profile.save()
-            # print(user_profile.reg_flag, user_profile.id)
+            print(user.userprofile)
+            user.userprofile.reg_flag = Token.objects.get(key=request.auth)
+            user.save()
 
             gym_config = GymConfig.objects.get(pk=1)
             if gym_config.default_gym:
