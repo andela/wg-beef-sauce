@@ -80,13 +80,13 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         return Response(UsernameSerializer(user).data)
 
 
-class UserCreateView(APIView):
+class UserCreateViewSet(viewsets.ViewSet):
     """API endpoint for creating a new user"""
 
     # Protect endpoint from unauthorised access.
     is_private = True
 
-    def post(self, request):
+    def create(self, request):
         """
         Crete new user instance.
 
@@ -109,7 +109,6 @@ class UserCreateView(APIView):
             email = u.get("email") or ""
             user = User.objects.create_user(u["username"], email, u["password"])
             user.save()
-            print(user.userprofile)
             user.userprofile.reg_flag = Token.objects.get(key=request.auth)
             user.save()
 
