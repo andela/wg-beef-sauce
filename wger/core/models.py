@@ -113,10 +113,10 @@ class UserProfile(models.Model):
     '''
 
     # Indicate the registration source if user account created via external app.
-    reg_flag = models.ForeignKey(Token,
-                                 editable=True,
-                                 null=True,
-                                 blank=True)
+    creator = models.CharField(editable=False,
+                               null=True,
+                               blank=True,
+                               max_length=50)
 
     gym = models.ForeignKey(Gym,
                             editable=False,

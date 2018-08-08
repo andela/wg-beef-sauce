@@ -105,11 +105,13 @@ class UserCreateViewSet(viewsets.ViewSet):
 
         user_serializer = UserSerializer(data=data)
         if user_serializer.is_valid():
+            creator = User.objects.get(pk=Token.objects.get(key=request.auth).user_id)
+            print(creator)
             u = user_serializer.data
             email = u.get("email") or ""
             user = User.objects.create_user(u["username"], email, u["password"])
             user.save()
-            user.userprofile.reg_flag = Token.objects.get(key=request.auth)
+            user.userprofile.creator = creator.username
             user.save()
 
             gym_config = GymConfig.objects.get(pk=1)
