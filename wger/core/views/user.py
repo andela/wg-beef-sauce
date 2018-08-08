@@ -21,6 +21,7 @@ import requests
 import fitbit
 import datetime
 
+from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.template.context_processors import csrf
@@ -34,6 +35,7 @@ from django.contrib.auth import logout as django_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User as Django_User, User
 from django.contrib.auth.views import login as django_loginview
+
 from django.contrib import messages
 from django.views.generic import (
     RedirectView,
@@ -103,11 +105,11 @@ def delete(request, user_pk=None):
         # Forbidden if the user has not enough rights, doesn't belong to the
         # gym or is an admin as well. General admins can delete all users.
         if not request.user.has_perm('gym.manage_gyms') \
-                and (not request.user.has_perm('gym.manage_gym')
-                     or request.user.userprofile.gym_id != user.userprofile.gym_id
-                     or user.has_perm('gym.manage_gym')
-                     or user.has_perm('gym.gym_trainer')
-                     or user.has_perm('gym.manage_gyms')):
+            and (not request.user.has_perm('gym.manage_gym')
+                 or request.user.userprofile.gym_id != user.userprofile.gym_id
+                 or user.has_perm('gym.manage_gym')
+                 or user.has_perm('gym.gym_trainer')
+                 or user.has_perm('gym.manage_gyms')):
             return HttpResponseForbidden()
     else:
         user = request.user
@@ -150,28 +152,28 @@ def trainer_login(request, user_pk):
 
     # No changing if identity is not set
     if not request.user.has_perm('gym.gym_trainer') \
-            and not request.session.get('trainer.identity'):
+        and not request.session.get('trainer.identity'):
         return HttpResponseForbidden()
 
     # Changing between trainers or managers is not allowed
     if request.user.has_perm('gym.gym_trainer') \
-            and (user.has_perm('gym.gym_trainer')
-                 or user.has_perm('gym.manage_gym')
-                 or user.has_perm('gym.manage_gyms')):
+        and (user.has_perm('gym.gym_trainer')
+             or user.has_perm('gym.manage_gym')
+             or user.has_perm('gym.manage_gyms')):
         return HttpResponseForbidden()
 
     # Check if we're switching back to our original account
     own = False
     if (user.has_perm('gym.gym_trainer')
-            or user.has_perm('gym.manage_gym')
-            or user.has_perm('gym.manage_gyms')):
+        or user.has_perm('gym.manage_gym')
+        or user.has_perm('gym.manage_gyms')):
         own = True
 
     # Note: it seems we have to manually set the authentication backend here
     # - https://docs.djangoproject.com/en/1.6/topics/auth/default/#auth-web-requests
     # - http://stackoverflow.com/questions/3807777/django-login-without-authenticating
     if own:
-        del(request.session['trainer.identity'])
+        del (request.session['trainer.identity'])
     user.backend = 'django.contrib.auth.backends.ModelBackend'
     django_login(request, user)
 
@@ -364,6 +366,21 @@ def fitbit(request):
                 headers=headers
             ).json()
 
+            # save fitbit data into the database
+            if 'weight' in get_weight_data:
+                try:
+                    for weight in get_weight_data['weight']:
+                        weight_entry = WeightEntry()
+                        weight_entry.user = request.user
+                        weight_entry.weight = weight['weight']
+                        weight_entry.date = weight['date']
+                        weight_entry.save()
+                        messages.success(request, _(
+                            'Successfully added weight data.'))
+                except IntegrityError as e:
+                    messages.success(request, _(
+                        'Weight data already added.'))
+
     template_data.update({'fitbit_link': get_fitbit})
 
     return render(request, 'user/fitbit.html', template_data)
@@ -389,7 +406,7 @@ class UserDeactivateView(LoginRequiredMixin,
             return HttpResponseForbidden()
 
         if (request.user.has_perm('gym.manage_gym') or request.user.has_perm('gym.gym_trainer')) \
-                and edit_user.userprofile.gym_id != request.user.userprofile.gym_id:
+            and edit_user.userprofile.gym_id != request.user.userprofile.gym_id:
             return HttpResponseForbidden()
 
         return super(UserDeactivateView, self).dispatch(request, *args, **kwargs)
@@ -422,7 +439,7 @@ class UserActivateView(LoginRequiredMixin,
             return HttpResponseForbidden()
 
         if (request.user.has_perm('gym.manage_gym') or request.user.has_perm('gym.gym_trainer')) \
-                and edit_user.userprofile.gym_id != request.user.userprofile.gym_id:
+            and edit_user.userprofile.gym_id != request.user.userprofile.gym_id:
             return HttpResponseForbidden()
 
         return super(UserActivateView, self).dispatch(request, *args, **kwargs)
@@ -460,8 +477,8 @@ class UserEditView(WgerFormMixin,
             return HttpResponseForbidden()
 
         if user.has_perm('gym.manage_gym') \
-                and not user.has_perm('gym.manage_gyms') \
-                and user.userprofile.gym != self.get_object().userprofile.gym:
+            and not user.has_perm('gym.manage_gyms') \
+            and user.userprofile.gym != self.get_object().userprofile.gym:
             return HttpResponseForbidden()
 
         return super(UserEditView, self).dispatch(request, *args, **kwargs)
@@ -528,8 +545,8 @@ class UserDetailView(LoginRequiredMixin, WgerMultiplePermissionRequiredMixin, De
             return HttpResponseForbidden()
 
         if (user.has_perm('gym.manage_gym') or user.has_perm('gym.gym_trainer')) \
-                and not user.has_perm('gym.manage_gyms') \
-                and user.userprofile.gym != self.get_object().userprofile.gym:
+            and not user.has_perm('gym.manage_gyms') \
+            and user.userprofile.gym != self.get_object().userprofile.gym:
             return HttpResponseForbidden()
 
         return super(UserDetailView, self).dispatch(request, *args, **kwargs)
@@ -547,10 +564,10 @@ class UserDetailView(LoginRequiredMixin, WgerMultiplePermissionRequiredMixin, De
                         'logs': logs.dates('date', 'day').count(),
                         'last_log': logs.last()})
         context['workouts'] = out
-        context['weight_entries'] = WeightEntry.objects.filter(user=self.object)\
-            .order_by('-date')[:5]
-        context['nutrition_plans'] = NutritionPlan.objects.filter(user=self.object)\
-            .order_by('-creation_date')[:5]
+        context['weight_entries'] = WeightEntry.objects.filter(user=self.object) \
+                                        .order_by('-date')[:5]
+        context['nutrition_plans'] = NutritionPlan.objects.filter(user=self.object) \
+                                         .order_by('-creation_date')[:5]
         context['session'] = WorkoutSession.objects.filter(user=self.object).order_by('-date')[:10]
         context['admin_notes'] = AdminUserNote.objects.filter(member=self.object)[:5]
         context['contracts'] = Contract.objects.filter(member=self.object)[:5]
