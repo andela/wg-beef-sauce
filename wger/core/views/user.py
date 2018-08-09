@@ -323,8 +323,9 @@ def fitbit(request):
     fitbit_secret_key = os.getenv('FITAPP_CONSUMER_SECRET')
     callback_url = os.getenv('CALLBACKURL')
     fitbit_scope = 'weight'
-    url_params = f'&response_type=code&scope={fitbit_scope}&redirect_uri={callback_url}'
+    url_params = "&response_type=code&scope={}&redirect_uri={}".format(fitbit_scope, callback_url)
     get_fitbit = f'https://www.fitbit.com/oauth2/authorize?client_id={fitbit_id}{url_params}'
+    print(get_fitbit)
 
     if 'code' in request.GET:
         code = request.GET.get('code', '')
@@ -361,7 +362,7 @@ def fitbit(request):
             base_date = datetime.datetime.today().strftime('%Y-%m-%d')
 
             # get request to retrieve weight data for the user
-            get_weight_params = f'{user_id}/body/log/weight/date/{base_date}/{period}.json'
+            get_weight_params = "{}/body/log/weight/date/{}/{}.json".format(user_id, base_date, period)
             get_weight_data = requests.get(
                 f'https://api.fitbit.com/1/user/{get_weight_params}',
                 headers=headers
