@@ -1,31 +1,24 @@
-{% extends "base.html" %}
-{% load i18n staticfiles wger_extras %}
-
-{% block title %}{% trans "Login" %}{% endblock %}
-
-
-{% block header %}
-{% endblock %}
-
-{% block content %}
-<form action="{% url 'core:user:login' %}{% if next %}?next={{next}}{% endif %}"
-      method="post"
-      class="form-horizontal">
-    {% trans 'Login' as submit_text %}
-    {% render_form_fields form submit_text %}
+{% extends "base.html" %} {% load i18n staticfiles wger_extras %} {% block title %}{% trans "Login" %}{% endblock %} {% block
+header %} {% endblock %} {% block content %}
+<form action="{% url 'core:user:login' %}{% if next %}?next={{next}}{% endif %}" method="post" class="form-horizontal">
+    {% trans 'Login' as submit_text %} {% render_form_fields form submit_text %}
     <div>
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+            crossorigin="anonymous">
         <h2>Or Login Using</h2>
         <hr>
-        <a href="{% url 'social:begin' 'facebook' %}"><i class="fab fa-facebook-square fa-5x"></i></a>
-        <a href="{% url 'social:begin' 'github' %}"><i class="fab fa-github-square fa-5x"></i></a>
-        <a href="{% url 'social:begin' 'google-oauth2' %}"><i class="fab fa-google-plus-square fa-5x"></i></a>
+        <a href="{% url 'social:begin' 'facebook' %}">
+            <i class="fab fa-facebook-square fa-5x"></i>
+        </a>
+        <a href="{% url 'social:begin' 'github' %}">
+            <i class="fab fa-github-square fa-5x"></i>
+        </a>
+        <a href="{% url 'social:begin' 'google-oauth2' %}">
+            <i class="fab fa-google-plus-square fa-5x"></i>
+        </a>
     </div>
 </form>
-{% endblock %}
-
-
-{% block sidebar %}
+{% endblock %} {% block sidebar %}
 <h4>{% trans "No account?" %}</h4>
 <p>
     <a href="{% url 'core:user:registration' %}" class="btn btn-block btn-default">
