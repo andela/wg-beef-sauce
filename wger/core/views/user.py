@@ -323,13 +323,13 @@ def fitbit(request):
     fitbit_secret_key = os.getenv('FITAPP_CONSUMER_SECRET')
     callback_url = os.getenv('CALLBACKURL')
     fitbit_scope = 'weight'
-    url_params = f'&response_type=code&scope={fitbit_scope}&redirect_uri={callback_url}'
-    fitbit_url = f'https://www.fitbit.com/oauth2/authorize?client_id={fitbit_id}'
+    url_params = '&response_type=code&scope={}&redirect_uri={}'.format(fitbit_scope, callback_url)
+    fitbit_url = 'https://www.fitbit.com/oauth2/authorize?client_id={}'.format(fitbit_id)
     get_fitbit = fitbit_url + url_params
 
     if 'code' in request.GET:
         code = request.GET.get('code', '')
-        client_secret = f'{fitbit_id}:{fitbit_secret_key}'
+        client_secret = '{}:{}'.format(fitbit_id, fitbit_secret_key)
 
         # Convert client secret key to bytes then to base64 for fitbit token
         client_secret = client_secret.encode('utf-8')
@@ -337,7 +337,7 @@ def fitbit(request):
 
         # custom headers for fitbit
         headers = {
-            'Authorization': f'Basic {b64_code}',
+            'Authorization': 'Basic {}'.format(b64_code),
             'Content-Type': 'application/x-www-form-urlencoded'
         }
         # parameters for fitbit api request
@@ -356,14 +356,14 @@ def fitbit(request):
         ).json()
 
         if 'access_token' in post_fitbit:
-            headers['Authorization'] = f'Bearer {post_fitbit["access_token"]}'
+            headers['Authorization'] = 'Bearer {}'.format(post_fitbit["access_token"])
             user_id = post_fitbit['user_id']
             period = '1w'
             base_date = datetime.datetime.today().strftime('%Y-%m-%d')
 
             # get request to retrieve weight data for the user
-            get_weight_params = f'{user_id}/body/log/weight/date/{base_date}/{period}.json'
-            get_weight_url = f'https://api.fitbit.com/1/user/'
+            get_weight_params = '/body/log/weight/date/{}/{}.json'.format(base_date, period)
+            get_weight_url = 'https://api.fitbit.com/1/user/{}'.format(user_id)
             get_weight = get_weight_url + get_weight_params
 
             get_weight_data = requests.get(
