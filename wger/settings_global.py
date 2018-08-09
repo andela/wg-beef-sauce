@@ -139,6 +139,7 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'wger.utils.helpers.EmailAuthBackend',
     'social_core.backends.facebook.FacebookOAuth2',
+    'social_core.backends.github.GithubOAuth2' 
 )
 
 TEMPLATES = [
@@ -385,3 +386,6 @@ WGER_SETTINGS = {
 
 SOCIAL_AUTH_FACEBOOK_KEY = os.getenv('FB_KEY')
 SOCIAL_AUTH_FACEBOOK_SECRET = os.getenv('FB_SECRET')
+
+SOCIAL_AUTH_GITHUB_KEY = os.getenv('GH_KEY')
+SOCIAL_AUTH_GITHUB_SECRET = os.getenv('GH_SECRET')
