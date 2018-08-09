@@ -152,21 +152,21 @@ def trainer_login(request, user_pk):
 
     # No changing if identity is not set
     if not request.user.has_perm('gym.gym_trainer') \
-        and not request.session.get('trainer.identity'):
+            and not request.session.get('trainer.identity'):
         return HttpResponseForbidden()
 
     # Changing between trainers or managers is not allowed
     if request.user.has_perm('gym.gym_trainer') \
-        and (user.has_perm('gym.gym_trainer')
-             or user.has_perm('gym.manage_gym')
-             or user.has_perm('gym.manage_gyms')):
+            and (user.has_perm('gym.gym_trainer')
+                 or user.has_perm('gym.manage_gym')
+                 or user.has_perm('gym.manage_gyms')):
         return HttpResponseForbidden()
 
     # Check if we're switching back to our original account
     own = False
     if (user.has_perm('gym.gym_trainer')
-        or user.has_perm('gym.manage_gym')
-        or user.has_perm('gym.manage_gyms')):
+            or user.has_perm('gym.manage_gym')
+            or user.has_perm('gym.manage_gyms')):
         own = True
 
     # Note: it seems we have to manually set the authentication backend here
@@ -324,7 +324,8 @@ def fitbit(request):
     fitbit_secret_key = os.getenv('FITAPP_CONSUMER_SECRET')
     callback_url = os.getenv('CALLBACKURL')
     fitbit_scope = 'weight'
-    get_fitbit = f'https://www.fitbit.com/oauth2/authorize?client_id={fitbit_id}&response_type=code&scope={fitbit_scope}&redirect_uri={callback_url}'
+    url_params = f'&response_type=code&scope={fitbit_scope}&redirect_uri={callback_url}'
+    get_fitbit = f'https://www.fitbit.com/oauth2/authorize?client_id={fitbit_id}{url_params}'
 
     if 'code' in request.GET:
         code = request.GET.get('code', '')
@@ -361,8 +362,9 @@ def fitbit(request):
             base_date = datetime.datetime.today().strftime('%Y-%m-%d')
 
             # get request to retrieve weight data for the user
+            get_weight_params = f'{user_id}/body/log/weight/date/{base_date}/{period}.json'
             get_weight_data = requests.get(
-                f'https://api.fitbit.com/1/user/{user_id}/body/log/weight/date/{base_date}/{period}.json',
+                f'https://api.fitbit.com/1/user/{get_weight_params}',
                 headers=headers
             ).json()
 
@@ -406,7 +408,7 @@ class UserDeactivateView(LoginRequiredMixin,
             return HttpResponseForbidden()
 
         if (request.user.has_perm('gym.manage_gym') or request.user.has_perm('gym.gym_trainer')) \
-            and edit_user.userprofile.gym_id != request.user.userprofile.gym_id:
+                and edit_user.userprofile.gym_id != request.user.userprofile.gym_id:
             return HttpResponseForbidden()
 
         return super(UserDeactivateView, self).dispatch(request, *args, **kwargs)
@@ -439,7 +441,7 @@ class UserActivateView(LoginRequiredMixin,
             return HttpResponseForbidden()
 
         if (request.user.has_perm('gym.manage_gym') or request.user.has_perm('gym.gym_trainer')) \
-            and edit_user.userprofile.gym_id != request.user.userprofile.gym_id:
+                and edit_user.userprofile.gym_id != request.user.userprofile.gym_id:
             return HttpResponseForbidden()
 
         return super(UserActivateView, self).dispatch(request, *args, **kwargs)
@@ -478,7 +480,7 @@ class UserEditView(WgerFormMixin,
 
         if user.has_perm('gym.manage_gym') \
             and not user.has_perm('gym.manage_gyms') \
-            and user.userprofile.gym != self.get_object().userprofile.gym:
+                and user.userprofile.gym != self.get_object().userprofile.gym:
             return HttpResponseForbidden()
 
         return super(UserEditView, self).dispatch(request, *args, **kwargs)
@@ -546,7 +548,7 @@ class UserDetailView(LoginRequiredMixin, WgerMultiplePermissionRequiredMixin, De
 
         if (user.has_perm('gym.manage_gym') or user.has_perm('gym.gym_trainer')) \
             and not user.has_perm('gym.manage_gyms') \
-            and user.userprofile.gym != self.get_object().userprofile.gym:
+                and user.userprofile.gym != self.get_object().userprofile.gym:
             return HttpResponseForbidden()
 
         return super(UserDetailView, self).dispatch(request, *args, **kwargs)
@@ -565,9 +567,9 @@ class UserDetailView(LoginRequiredMixin, WgerMultiplePermissionRequiredMixin, De
                         'last_log': logs.last()})
         context['workouts'] = out
         context['weight_entries'] = WeightEntry.objects.filter(user=self.object) \
-                                        .order_by('-date')[:5]
+            .order_by('-date')[:5]
         context['nutrition_plans'] = NutritionPlan.objects.filter(user=self.object) \
-                                         .order_by('-creation_date')[:5]
+            .order_by('-creation_date')[:5]
         context['session'] = WorkoutSession.objects.filter(user=self.object).order_by('-date')[:10]
         context['admin_notes'] = AdminUserNote.objects.filter(member=self.object)[:5]
         context['contracts'] = Contract.objects.filter(member=self.object)[:5]
