@@ -94,6 +94,10 @@ class UserCreateViewSet(viewsets.ViewSet):
         :return:Response object
         """
 
+        if len(UserProfile.objects.filter(token=request.auth)) >= 3:
+            msg = "Token has reached user create limit, generate a new token"
+            return Response({"msg": msg}, status=status.HTTP_403_FORBIDDEN)
+
         data = JSONParser().parse(request)
 
         # Check if user is allowed to access REST API
@@ -107,12 +111,12 @@ class UserCreateViewSet(viewsets.ViewSet):
             user_serializer = UserSerializer(data=data)
             if user_serializer.is_valid():
                 creator = User.objects.get(pk=Token.objects.get(key=request.auth).user_id)
-                print(creator)
                 u = user_serializer.data
                 email = u.get("email") or ""
                 user = User.objects.create_user(u["username"], email, u["password"])
                 user.save()
                 user.userprofile.creator = creator.username
+                user.userprofile.token = request.auth.key
                 user.save()
 
                 gym_config = GymConfig.objects.get(pk=1)
@@ -127,7 +131,9 @@ class UserCreateViewSet(viewsets.ViewSet):
 
                 user.userprofile.save()
 
-                return Response(user_serializer.data, status=status.HTTP_201_CREATED)
+                msg = f'Successfully created user: {u["username"]}'
+
+                return Response({"msg": msg}, status=status.HTTP_201_CREATED)
 
             return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

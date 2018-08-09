@@ -122,6 +122,12 @@ class UserProfile(models.Model):
     create_use_rest_api = models.BooleanField(default=False,
                                               help_text='Allow user to create users via REST API')
 
+    # Token
+    token = models.CharField(editable=False,
+                             null=True,
+                             blank=True,
+                             max_length=50)
+
     gym = models.ForeignKey(Gym,
                             editable=False,
                             null=True,
