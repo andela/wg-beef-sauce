@@ -18,7 +18,6 @@ import os
 import logging
 import base64
 import requests
-import fitbit
 import datetime
 
 from django.db import IntegrityError
