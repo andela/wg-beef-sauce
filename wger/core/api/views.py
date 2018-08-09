@@ -95,7 +95,7 @@ class UserCreateViewSet(viewsets.ViewSet):
         """
 
         data = JSONParser().parse(request)
-        
+
         # Check if user is allowed to access REST API
         check_access = UserProfile.objects.get(user=self.request.user)
         if check_access.create_use_rest_api:

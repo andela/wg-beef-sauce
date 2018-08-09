@@ -117,10 +117,10 @@ class UserProfile(models.Model):
                                null=True,
                                blank=True,
                                max_length=50)
-    
+
     # Field thats sets if a user is allowed to create users through REST API
     create_use_rest_api = models.BooleanField(default=False,
-                                            help_text='Allow user to create users via REST API')
+                                              help_text='Allow user to create users via REST API')
 
     gym = models.ForeignKey(Gym,
                             editable=False,

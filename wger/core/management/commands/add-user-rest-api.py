@@ -43,4 +43,3 @@ class Command(BaseCommand):
                 print(f"{username} is now able to access REST API to create users")
         except:
             print(f"User {username} does not exist")
-    
