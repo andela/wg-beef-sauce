@@ -93,42 +93,46 @@ class UserCreateViewSet(viewsets.ViewSet):
         :param request: request object
         :return:Response object
         """
-        # print(request.user, request.auth)
 
         data = JSONParser().parse(request)
-        # print(data)
+        
+        # Check if user is allowed to access REST API
+        check_access = UserProfile.objects.get(user=self.request.user)
+        if check_access.create_use_rest_api:
+            # Check if password equal to confirm_password.
+            if data["password"] and data["confirm_password"] and \
+                    data["password"] != data["confirm_password"]:
+                return Response({"msg": "password mismatch"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Check if password equal to confirm_password.
-        if data["password"] and data["confirm_password"] and \
-                data["password"] != data["confirm_password"]:
-            return Response({"msg": "password mismatch"}, status=status.HTTP_400_BAD_REQUEST)
+            user_serializer = UserSerializer(data=data)
+            if user_serializer.is_valid():
+                creator = User.objects.get(pk=Token.objects.get(key=request.auth).user_id)
+                print(creator)
+                u = user_serializer.data
+                email = u.get("email") or ""
+                user = User.objects.create_user(u["username"], email, u["password"])
+                user.save()
+                user.userprofile.creator = creator.username
+                user.save()
 
-        user_serializer = UserSerializer(data=data)
-        if user_serializer.is_valid():
-            creator = User.objects.get(pk=Token.objects.get(key=request.auth).user_id)
-            u = user_serializer.data
-            email = u.get("email") or ""
-            user = User.objects.create_user(u["username"], email, u["password"])
-            user.save()
-            user.userprofile.creator = creator.username
-            user.save()
+                gym_config = GymConfig.objects.get(pk=1)
+                if gym_config.default_gym:
+                    user.userprofile.gym = gym_config.default_gym
 
-            gym_config = GymConfig.objects.get(pk=1)
-            if gym_config.default_gym:
-                user.userprofile.gym = gym_config.default_gym
+                    # Create gym user configuration object
+                    config = GymUserConfig()
+                    config.gym = gym_config.default_gym
+                    config.user = user
+                    config.save()
 
-                # Create gym user configuration object
-                config = GymUserConfig()
-                config.gym = gym_config.default_gym
-                config.user = user
-                config.save()
+                user.userprofile.save()
 
-            user.userprofile.save()
-            msg = {"msg": "Successfully created user: {}" .format(user_serializer.data['username'])}
+                return Response(user_serializer.data, status=status.HTTP_201_CREATED)
 
-            return Response(msg, status=status.HTTP_201_CREATED)
+            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        msg = "You're NOT authorised to create a user via rest api"
+        return Response({"msg": msg}, status=status.HTTP_403_FORBIDDEN)
 
 
 class LanguageViewSet(viewsets.ReadOnlyModelViewSet):

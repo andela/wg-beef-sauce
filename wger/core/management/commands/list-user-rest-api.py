@@ -34,7 +34,6 @@ class Command(BaseCommand):
         creator = options.get('creator', None)
 
         user = User.objects.all()
-        # if )User.objects.filter(username=creator:
         if creator is not None and not User.objects.filter(username=creator):
             print(f"Creator {creator} does not exist")
         else:
