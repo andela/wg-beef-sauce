@@ -17,7 +17,6 @@
 
 from django.contrib.auth.models import User
 from rest_framework import viewsets
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from rest_framework.parsers import JSONParser
@@ -131,7 +130,7 @@ class UserCreateViewSet(viewsets.ViewSet):
 
                 user.userprofile.save()
 
-                msg = f'Successfully created user: {u["username"]}'
+                msg = 'Successfully created user: {}' .format(u['username'])
 
                 return Response({"msg": msg}, status=status.HTTP_201_CREATED)
 
