@@ -13,7 +13,6 @@ django-bower==5.2.0
 django-compressor==2.2
 django-cors-headers==2.4.0
 django-filter==1.1.0
-django-formtools==1.0
 django-heroku==0.3.1
 django-mobile==0.7.0
 django-recaptcha==1.3.1
@@ -25,16 +24,6 @@ easy-thumbnails==2.5
 flake8==3.5.0
 reportlab==3.4
 django-formtools>=1.0,<1.1
-bleach
-python-mimeparse
-pillow
-django_compressor
-icalendar
-django-bootstrap-breadcrumbs
-sphinx
-django-bower
-invoke
-requests
 fitbit==0.3.0
 
 # REST API
@@ -43,8 +32,6 @@ django-filter>=1.1,<2.0
 django-cors-headers
 
 # Python3 compatibility
-six
-
 psycopg2==2.7.0
 gunicorn==19.9.0
 html5lib==1.0.1
