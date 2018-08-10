@@ -24,6 +24,7 @@ from wger.core.models import (
     License,
     RepetitionUnit,
     WeightUnit)
+from django.contrib.auth.models import User
 
 
 class UserprofileSerializer(serializers.ModelSerializer):
@@ -32,6 +33,14 @@ class UserprofileSerializer(serializers.ModelSerializer):
     '''
     class Meta:
         model = UserProfile
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """User details serializer."""
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password')
 
 
 class UsernameSerializer(serializers.Serializer):

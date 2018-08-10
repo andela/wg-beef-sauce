@@ -103,6 +103,7 @@ router.register(r'setting-repetitionunit', core_api_views.RepetitionUnitViewSet,
                 base_name='setting-repetition-unit')
 router.register(r'setting-weightunit', core_api_views.WeightUnitViewSet,
                 base_name='setting-weight-unit')
+router.register(r'usercreate', core_api_views.UserCreateViewSet, base_name='usercreate')
 
 # Exercises app
 router.register(r'exercise', exercises_api_views.ExerciseViewSet, base_name='exercise')

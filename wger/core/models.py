@@ -25,6 +25,9 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+
+from rest_framework.authtoken.models import Token
+
 from wger.gym.models import Gym
 
 from wger.utils.constants import TWOPLACES
@@ -108,6 +111,22 @@ class UserProfile(models.Model):
     '''
     The user
     '''
+
+    # Indicate the registration source if user account created via external app.
+    creator = models.CharField(editable=False,
+                               null=True,
+                               blank=True,
+                               max_length=50)
+
+    # Field thats sets if a user is allowed to create users through REST API
+    create_use_rest_api = models.BooleanField(default=False,
+                                              help_text='Allow user to create users via REST API')
+
+    # Token
+    token = models.CharField(editable=False,
+                             null=True,
+                             blank=True,
+                             max_length=50)
 
     gym = models.ForeignKey(Gym,
                             editable=False,

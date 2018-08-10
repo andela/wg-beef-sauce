@@ -19,6 +19,11 @@ from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
+from rest_framework.parsers import JSONParser
+from rest_framework import status
+
+from wger.config.models import GymConfig
+from rest_framework.authtoken.models import Token
 
 from wger.core.models import (
     UserProfile,
@@ -33,8 +38,12 @@ from wger.core.api.serializers import (
     DaysOfWeekSerializer,
     LicenseSerializer,
     RepetitionUnitSerializer,
-    WeightUnitSerializer
+    WeightUnitSerializer,
+    UserSerializer
 )
+
+from wger.gym.models import GymUserConfig
+
 from wger.core.api.serializers import UserprofileSerializer
 from wger.utils.permissions import UpdateOnlyPermission, WgerPermission
 
@@ -68,6 +77,67 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
         user = self.get_object().user
         return Response(UsernameSerializer(user).data)
+
+
+class UserCreateViewSet(viewsets.ViewSet):
+    """API endpoint for creating a new user"""
+
+    # Protect endpoint from unauthorised access.
+    is_private = True
+
+    def create(self, request):
+        """
+        Crete new user instance.
+
+        :param request: request object
+        :return:Response object
+        """
+
+        if len(UserProfile.objects.filter(token=request.auth)) >= 3:
+            msg = "Token has reached user create limit, generate a new token"
+            return Response({"msg": msg}, status=status.HTTP_403_FORBIDDEN)
+
+        data = JSONParser().parse(request)
+
+        # Check if user is allowed to access REST API
+        check_access = UserProfile.objects.get(user=self.request.user)
+        if check_access.create_use_rest_api:
+            # Check if password equal to confirm_password.
+            if data["password"] and data["confirm_password"] and \
+                    data["password"] != data["confirm_password"]:
+                return Response({"msg": "password mismatch"}, status=status.HTTP_400_BAD_REQUEST)
+
+            user_serializer = UserSerializer(data=data)
+            if user_serializer.is_valid():
+                creator = User.objects.get(pk=Token.objects.get(key=request.auth).user_id)
+                u = user_serializer.data
+                email = u.get("email") or ""
+                user = User.objects.create_user(u["username"], email, u["password"])
+                user.save()
+                user.userprofile.creator = creator.username
+                user.userprofile.token = request.auth.key
+                user.save()
+
+                gym_config = GymConfig.objects.get(pk=1)
+                if gym_config.default_gym:
+                    user.userprofile.gym = gym_config.default_gym
+
+                    # Create gym user configuration object
+                    config = GymUserConfig()
+                    config.gym = gym_config.default_gym
+                    config.user = user
+                    config.save()
+
+                user.userprofile.save()
+
+                msg = 'Successfully created user: {}' .format(u['username'])
+
+                return Response({"msg": msg}, status=status.HTTP_201_CREATED)
+
+            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        msg = "You're NOT authorised to create a user via rest api"
+        return Response({"msg": msg}, status=status.HTTP_403_FORBIDDEN)
 
 
 class LanguageViewSet(viewsets.ReadOnlyModelViewSet):
