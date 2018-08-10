@@ -36,10 +36,10 @@ class Command(BaseCommand):
         try:
             user = User.objects.get(username=username)
             if user.userprofile.create_use_rest_api:
-                print(f"{username} is already allowed to access REST API to create users")
+                print("{} is already allowed to access REST API to create users".format(username))
             else:
                 user.userprofile.create_use_rest_api = True
                 user.userprofile.save()
-                print(f"{username} is now able to access REST API to create users")
+                print("{} is now able to access REST API to create users".format(username))
         except:
-            print(f"User {username} does not exist")
+            print("User {} does not exist".format(username))

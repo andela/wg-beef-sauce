@@ -35,10 +35,10 @@ class Command(BaseCommand):
 
         user = User.objects.all()
         if creator is not None and not User.objects.filter(username=creator):
-            print(f"Creator {creator} does not exist")
+            print("Creator {} does not exist".format(creator))
         else:
             for u in user:
                 if creator and u.userprofile.creator == creator:
                     print(u.username)
                 elif u.userprofile.creator is not None:
-                    print(f"{u.username} created by {u.userprofile.creator}")
+                    print("{} created by {}".format(u.username, u.userprofile.creator))
