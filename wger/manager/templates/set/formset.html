@@ -2,12 +2,43 @@
 {% load i18n %}
 <div id="formset-exercise-{{exercise.id}}" style="margin-top: 1em;">
 <div class="row">
+    <div>
+        <div class="form-group">
+            <label class="col-md-3 control-label">
+                Drop sets
+            </label>
+            <div class=" col-md-9">
+                <span class="help-block">
+                    To do drop sets choose the initial weight, the number of repetitions on each set and the amount of weight to drop on each set.
+                    <br/>
+                    <a href="https://en.wikipedia.org/wiki/Drop_set">What is a Drop Set?</a>
+                </span>
+                <div class="col-xs-4">
+                    <input type="number" id="weight-{{exercise.id}}" class="form-control" placeholder="Start Weight">
+                </div>
+                 <div class="col-xs-4">
+                    <input type="number" id="reps-{{exercise.id}}" class="form-control" placeholder="Reps">
+                </div>
+                <div class="col-xs-4">
+                    <input type="number" id="drop-{{exercise.id}}" class="form-control" placeholder="Drop By">
+                </div>
+                <br/>
+                <br/>
+                <div class="col-xs-12">
+                    <button type="button" class="btn btn-primary  btn-lg btn-block" onclick='DropSet({{exercise.id}})'>
+                        Calculate Drop Set
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="col-md-offset-2 col-md-10">
         <label class="control-label">
             {{exercise}}
         </label>
     </div>
 </div>
+<div>
 {{ formset.management_form }}
 
 {% for field in formset %}
@@ -71,3 +102,8 @@
 </div>
 {% endfor %}
 </div>
+<script>
+    function DropSet(workoutId) {
+        alert(workoutId);              // The function returns the product of p1 and p2
+    }
+</script>
