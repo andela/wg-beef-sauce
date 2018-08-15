@@ -817,6 +817,13 @@ class WorkoutSession(models.Model):
     User notes about the workout
     '''
 
+    workout_session_logs = models.TextField(verbose_name=_('WorkoutLog'),
+                                            null=True,
+                                            blank=True)
+    '''
+    Workout log that session belong to
+    '''
+
     impression = models.CharField(verbose_name=_('General impression'),
                                   max_length=2,
                                   choices=IMPRESSION,
