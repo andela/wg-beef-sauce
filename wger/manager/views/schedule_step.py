@@ -26,6 +26,7 @@ from django.views.generic import (
     DeleteView,
     UpdateView
 )
+from django.core.exceptions import ValidationError
 
 from wger.manager.models import (
     Schedule,
@@ -61,11 +62,47 @@ class StepCreateView(WgerFormMixin, CreateView, PermissionRequiredMixin):
         class StepForm(ModelForm):
             workout = ModelChoiceField(queryset=Workout.objects.filter(user=self.request.user))
 
+            def clean_duration(self):
+                """Ensures duration does not exceed period"""
+                duration = self.cleaned_data['duration']
+                schedule = Schedule.objects.get(pk=self.schedule_id)
+                sum_duration = schedule.schedulestep_set.all().aggregate(models.Sum('duration'))
+
+                # Catch NoneType error for 1st workout to be added to schedule.
+                sum_duration = sum_duration['duration__sum'] or 0
+                derived_duration = duration + sum_duration
+
+                error_msg1 = 'Invalid duration - cycle duration exceeding '
+                error_msg2 = ' weeks left in cycle'
+                # Check if duration exceeds cycle duration
+                if schedule.period == 'Macrocycle' and derived_duration > 52:
+                    msg = error_msg1 + '1 year' + '.' + str(52 - sum_duration) + error_msg2
+                    raise ValidationError(_(msg))
+                elif schedule.period == 'Mesocycle' and derived_duration > 6:
+                    msg = error_msg1 + '6 weeks' + '.' + str(6 - sum_duration) + error_msg2
+                    raise ValidationError(_(msg))
+                elif schedule.period == 'Microcycle' and derived_duration > 1:
+                    raise ValidationError(_(
+                        'Workout already exists. Delete existing workout to add new one'))
+
+                return duration
+
             class Meta:
                 model = ScheduleStep
                 exclude = ('order', 'schedule')
 
+            def __init__(self, schedule_id, *args, **kwargs):
+                super(StepForm, self).__init__(*args, **kwargs)
+
+                # set the schedule_id as an attribute of the form
+                self.schedule_id = schedule_id
+
         return StepForm
+
+    def get_form_kwargs(self):
+        kwargs = super(CreateView, self).get_form_kwargs()
+        kwargs['schedule_id'] = self.kwargs['schedule_pk']
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super(StepCreateView, self).get_context_data(**kwargs)

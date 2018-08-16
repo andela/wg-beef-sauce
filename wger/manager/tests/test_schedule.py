@@ -119,7 +119,26 @@ class CreateScheduleTestCase(WorkoutManagerAddTestCase):
     data = {'name': 'My cool schedule',
             'start_date': datetime.date.today(),
             'is_active': True,
-            'is_loop': True}
+            'is_loop': True,
+            'period': 'Macrocycle'
+            }
+
+
+class CreateMicroScheduleTestCase(WorkoutManagerAddTestCase):
+    '''
+    Tests adding a schedule
+    '''
+
+    object_class = Schedule
+    url = 'manager:schedule:add'
+    user_success = 'test'
+    user_fail = False
+    data = {'name': 'My cool schedule',
+            'start_date': datetime.date.today(),
+            'is_active': True,
+            'is_loop': True,
+            'period': 'Microcycle'
+            }
 
 
 class DeleteScheduleTestCase(WorkoutManagerDeleteTestCase):
@@ -145,7 +164,8 @@ class EditScheduleTestCase(WorkoutManagerEditTestCase):
     data = {'name': 'An updated name',
             'start_date': datetime.date.today(),
             'is_active': True,
-            'is_loop': True}
+            'is_loop': True,
+            'period': 'Mesocycle'}
 
 
 class ScheduleTestCase(WorkoutManagerTestCase):
