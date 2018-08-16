@@ -76,10 +76,10 @@ class StepCreateView(WgerFormMixin, CreateView, PermissionRequiredMixin):
                 error_msg2 = ' weeks left in cycle'
                 # Check if duration exceeds cycle duration
                 if schedule.period == 'Macrocycle' and derived_duration > 52:
-                    msg = error_msg1 + '1 year' + '.' + str(52-sum_duration) + error_msg2
+                    msg = error_msg1 + '1 year' + '.' + str(52 - sum_duration) + error_msg2
                     raise ValidationError(_(msg))
                 elif schedule.period == 'Mesocycle' and derived_duration > 6:
-                    msg = error_msg1 + '6 weeks' + '.' + str(6-sum_duration) + error_msg2
+                    msg = error_msg1 + '6 weeks' + '.' + str(6 - sum_duration) + error_msg2
                     raise ValidationError(_(msg))
                 elif schedule.period == 'Microcycle' and derived_duration > 1:
                     raise ValidationError(_(
