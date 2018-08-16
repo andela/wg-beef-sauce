@@ -208,6 +208,12 @@ class Schedule(models.Model):
     objects = ScheduleManager()
     '''Custom manager'''
 
+    CYCLE_OPTIONS = [
+        ('Microcycle', 'Microcycle(1 week)'),
+        ('Mesocycle', 'Mesocycle(2-6 weeks)'),
+        ('Macrocycle', 'Macrocycle(1 year)')
+    ]
+
     user = models.ForeignKey(User,
                              verbose_name=_('User'),
                              editable=False)
@@ -240,6 +246,11 @@ class Schedule(models.Model):
                                   help_text=_("Tick the box if you want to repeat the schedules "
                                               "in a loop (i.e. A, B, C, A, B, C, and so on)"))
     '''A flag indicating whether the schedule should act as a loop'''
+
+    period = models.CharField(verbose_name=_('Period'),
+                              max_length=50,
+                              choices=CYCLE_OPTIONS,
+                              null=True)
 
     def __str__(self):
         '''
@@ -326,7 +337,7 @@ class ScheduleStep(models.Model):
     duration = models.IntegerField(verbose_name=_('Duration'),
                                    help_text=_('The duration in weeks'),
                                    default=4,
-                                   validators=[MinValueValidator(1), MaxValueValidator(25)])
+                                   validators=[MinValueValidator(1), MaxValueValidator(30)])
     '''The duration in weeks'''
 
     order = models.IntegerField(verbose_name=_('Order'),

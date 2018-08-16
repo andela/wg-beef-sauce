@@ -26,6 +26,7 @@ from django.views.generic import (
     DeleteView,
     UpdateView
 )
+from django.core.exceptions import ValidationError
 
 from wger.manager.models import (
     Schedule,
@@ -61,11 +62,39 @@ class StepCreateView(WgerFormMixin, CreateView, PermissionRequiredMixin):
         class StepForm(ModelForm):
             workout = ModelChoiceField(queryset=Workout.objects.filter(user=self.request.user))
 
+            def clean_duration(self):
+                """Ensures duration does not exceed period"""
+                duration = self.cleaned_data['duration']
+                schedule = Schedule.objects.get(pk=self.schedule_id)
+                sum_duration = schedule.schedulestep_set.all().aggregate(models.Sum('duration'))
+
+                derived_duration = duration + sum_duration['duration__sum']
+
+                if schedule.period == 'Macrocycle' and derived_duration > 52:
+                    raise ValidationError(_('Invalid duration- cycle duration exceeding 1 year'))
+                elif schedule.period == 'Mesocycle' and derived_duration > 6:
+                    raise ValidationError(_('Invalid duration- cycle duration exceeding 6 weeks'))
+                elif schedule.period == 'Microcycle' and derived_duration > 6:
+                    raise ValidationError(_('Invalid duration- cycle duration exceeding 1 week'))
+
+                return duration
+
             class Meta:
                 model = ScheduleStep
                 exclude = ('order', 'schedule')
 
+            def __init__(self, schedule_id, *args, **kwargs):
+                super(StepForm, self).__init__(*args, **kwargs)
+
+                # set the schedule_id as an attribute of the form
+                self.schedule_id = schedule_id
+
         return StepForm
+
+    def get_form_kwargs(self):
+        kwargs = super(CreateView, self).get_form_kwargs()
+        kwargs['schedule_id'] = self.kwargs['schedule_pk']
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super(StepCreateView, self).get_context_data(**kwargs)

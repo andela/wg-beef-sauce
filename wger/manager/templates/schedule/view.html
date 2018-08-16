@@ -91,6 +91,17 @@
             {% endif %}
         </td>
     </tr>
+    <tr>
+        <th>{% trans "Period Cycle" %}</th>
+        <td>
+            {% if schedule.period %}
+                <span class="period">{{ schedule.period }}</span><br/>
+                <small>{% trans "This schedule will stay active until period elapses" %}</small>
+            {% else %}
+                <span class="{% fa_class 'times' %}"></span>
+            {% endif %}
+        </td>
+    </tr>
 </table>
 
 
