@@ -1,5 +1,39 @@
 {% load wger_extras %}
 {% load i18n %}
+<div>
+    <div class="form-group">
+        <label class="col-md-3 control-label">
+            Drop sets
+        </label>
+        <div class=" col-md-9">
+            <span class="help-block">
+                To do drop sets choose the initial weight, the number of repetitions on each set and the amount of weight to drop on each set.
+                <br/>
+                <a href="https://en.wikipedia.org/wiki/Drop_set">What is a Drop Set?</a>
+            </span>
+            <div class="col-xs-6">
+                <input type="number" id="weight-{{exercise.id}}" class="form-control" placeholder="Start Weight">
+            </div>
+            <div class="col-xs-6">
+                <input type="number" id="drop-weight-{{exercise.id}}" class="form-control" placeholder="Drop Weight By">
+            </div>
+            <br/><br/><br/>
+            <div class="col-xs-6">
+                <input type="number" id="reps-{{exercise.id}}" class="form-control" placeholder="Start Reps">
+            </div>
+            <div class="col-xs-6">
+                <input type="number" id="drop-reps-{{exercise.id}}" class="form-control" placeholder="Drop Reps By">
+            </div>
+            <br/>
+            <br/>
+            <div class="col-xs-12">
+                <button type="button" class="btn btn-primary  btn-lg btn-block" onclick='DropSet({{exercise.id}})'>
+                    Calculate Drop Set
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="formset-exercise-{{exercise.id}}" style="margin-top: 1em;">
 <div class="row">
     <div class="col-md-offset-2 col-md-10">
@@ -8,6 +42,7 @@
         </label>
     </div>
 </div>
+<div>
 {{ formset.management_form }}
 
 {% for field in formset %}
@@ -71,3 +106,32 @@
 </div>
 {% endfor %}
 </div>
+<script>
+    function DropSet(workoutId) {
+        var numOfSets = document.getElementById('id_sets').value;
+        var reps = document.getElementById(`reps-${workoutId}`).value;
+        var weight = document.getElementById(`weight-${workoutId}`).value;
+        var dropWeight = document.getElementById(`drop-weight-${workoutId}`).value;
+        var dropReps = document.getElementById(`drop-reps-${workoutId}`).value;
+        var repsEntry = '';
+        var weightEntry = '';
+        console.log(dropWeight, dropReps, reps, weight);
+        if (!((reps > 0) && (weight > 0) && (dropReps.length === '' || dropReps >= 0) && (dropWeight > 0))) {
+            alert('Please ensure you enter all 4 Drop Set fields as positive integers')
+        } else {
+            for (var i = 0; i < numOfSets; i++){
+                repsEntry = 'id_exercise' + workoutId + '-' + i + '-reps';
+                weightEntry = 'id_exercise' + workoutId + '-' + i + '-weight';
+                document.getElementById(repsEntry).value = reps;
+                document.getElementById(weightEntry).value = weight;
+                weight -= dropWeight;
+                reps -= dropReps;
+                if (weight < 2 || reps < 1) {
+                    break;
+                }
+
+            }
+        }
+
+    }
+</script>
