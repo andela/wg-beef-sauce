@@ -33,7 +33,7 @@ class GymUserPermisssionForm(forms.ModelForm):
 
     # Empty default roles, they are always set at run time
     ROLES = ()
-    
+
     class Meta:
         model = User
         fields = ('role',)
