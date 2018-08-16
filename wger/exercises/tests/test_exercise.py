@@ -85,8 +85,8 @@ class ExerciseIndexTestCase(WorkoutManagerTestCase):
         self.assertEqual(category_1.name, "Another category")
 
         category_2 = response.context['exercises'][1].category
-        self.assertEqual(category_2.id, 3)
-        self.assertEqual(category_2.name, "Yet another category")
+        self.assertEqual(category_2.id, 2)
+        self.assertEqual(category_2.name, "Another category")
 
         # Correct exercises in the categories
         exercises_1 = category_1.exercise_set.all()
@@ -510,7 +510,6 @@ class WorkoutCacheTestCase(WorkoutManagerTestCase):
         exercise.delete()
         for workout_id in workout_ids:
             self.assertFalse(cache.get(cache_mapper.get_workout_canonical(workout_id)))
-
 
 # TODO: fix test, all registered users can upload exercises
 # class ExerciseApiTestCase(api_base_test.ApiBaseResourceTestCase):
