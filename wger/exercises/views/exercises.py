@@ -25,6 +25,7 @@ from django.forms import (
     ModelChoiceField,
     ModelMultipleChoiceField
 )
+from wger.core.models import Language
 from django.core.cache import cache
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
@@ -60,7 +61,6 @@ from wger.utils.widgets import (
 from wger.config.models import LanguageConfig
 from wger.weight.helpers import process_log_entries
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -77,17 +77,40 @@ class ExerciseListView(ListView):
         '''
         Filter to only active exercises in the configured languages
         '''
-        languages = load_item_languages(LanguageConfig.SHOW_ITEM_EXERCISES)
+        language = None
+        language_code = self.request.GET.get('lang', None)
+
+        if language_code:
+            lang = Language.objects.filter(short_name=language_code)
+            if lang.exists():
+                language = lang.first().id
+
+        if language:
+            return Exercise.objects.accepted() \
+                .filter(language=language) \
+                .order_by('category__id') \
+                .select_related()
+
         return Exercise.objects.accepted() \
-            .filter(language__in=languages) \
             .order_by('category__id') \
             .select_related()
+
+    def filter_language(self):
+        """
+        filter and return language if its found
+        """
+        language_code = self.request.GET.get('lang', None)
+        lang = None
+        if language_code:
+            lang = Language.objects.get(short_name=language_code)
+        return lang
 
     def get_context_data(self, **kwargs):
         '''
         Pass additional data to the template
         '''
         context = super(ExerciseListView, self).get_context_data(**kwargs)
+        context['lang'] = self.filter_language()
         context['show_shariff'] = True
         return context
 
@@ -159,10 +182,9 @@ class ExercisesEditAddView(WgerFormMixin):
     sidebar = 'exercise/form.html'
     title = ugettext_lazy('Add exercise')
     custom_js = 'wgerInitTinymce();'
-    clean_html = ('description', )
+    clean_html = ('description',)
 
     def get_form_class(self):
-
         # Define the exercise form here because only at this point during the request
         # have we access to the currently used language. In other places Django defaults
         # to 'en-us'.

@@ -61,7 +61,7 @@ docs/_build/
 target/
 
 # IDE
-.idea/
+.idea
 
 # External Libraries
 wger/core/static/bower_components
@@ -69,3 +69,4 @@ node_modules
 
 .env
 venv-wger
+.jsbeautifyrc

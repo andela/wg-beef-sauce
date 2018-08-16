@@ -20,6 +20,7 @@ from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.core import mail
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.cache import cache
+from wger.core.models import Language
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.contrib.auth.decorators import permission_required
 from django.contrib import messages
@@ -40,7 +41,6 @@ from wger.utils.generic_views import (
 from wger.utils.constants import PAGINATION_OBJECTS_PER_PAGE
 from wger.utils.language import load_language, load_ingredient_languages
 from wger.utils.cache import cache_mapper
-
 
 logger = logging.getLogger(__name__)
 
@@ -64,18 +64,38 @@ class IngredientListView(ListView):
         (the user can also want to see ingredients in English, in addition to his
         native language, see load_ingredient_languages)
         '''
-        languages = load_ingredient_languages(self.request)
-        return (Ingredient.objects.filter(language__in=languages)
-                                  .filter(status__in=Ingredient.INGREDIENT_STATUS_OK)
-                                  .only('id', 'name'))
+
+        language = None
+        language_code = self.request.GET.get('lang', None)
+        if language_code:
+            lang = Language.objects.filter(short_name=language_code)
+            if lang.exists():
+                language = lang.first().id
+
+        if language:
+            return (Ingredient.objects.filter(language=language)
+                    .filter(status__in=Ingredient.INGREDIENT_STATUS_OK).only('id', 'name'))
+        return (Ingredient.objects.filter(
+            status__in=Ingredient.INGREDIENT_STATUS_OK).only('id', 'name'))
 
     def get_context_data(self, **kwargs):
         '''
         Pass additional data to the template
         '''
         context = super(IngredientListView, self).get_context_data(**kwargs)
+        context['lang'] = self.filter_language()
         context['show_shariff'] = True
         return context
+
+    def filter_language(self):
+        """
+        filter and return language if its found
+        """
+        language_code = self.request.GET.get('lang', None)
+        lang = None
+        if language_code:
+            lang = Language.objects.get(short_name=language_code)
+        return lang
 
 
 def view(request, id, slug=None):
@@ -183,7 +203,7 @@ class IngredientCreateView(IngredientMixin, CreateView):
         else:
             subject = _('New user submitted ingredient')
             message = _(u'''The user {0} submitted a new ingredient "{1}".'''.format(
-                        self.request.user.username, form.instance.name))
+                self.request.user.username, form.instance.name))
             mail.mail_admins(subject,
                              message,
                              fail_silently=True)
