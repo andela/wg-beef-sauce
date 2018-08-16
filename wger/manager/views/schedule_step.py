@@ -68,14 +68,16 @@ class StepCreateView(WgerFormMixin, CreateView, PermissionRequiredMixin):
                 schedule = Schedule.objects.get(pk=self.schedule_id)
                 sum_duration = schedule.schedulestep_set.all().aggregate(models.Sum('duration'))
 
-                derived_duration = duration + sum_duration['duration__sum']
+                # Catch NoneType error for 1st workout to be added to schedule.
+                sum_duration = sum_duration['duration__sum'] or 0
+                derived_duration = duration + sum_duration
 
                 # Check if duration exceeds cycle duration
                 if schedule.period == 'Macrocycle' and derived_duration > 52:
                     raise ValidationError(_('Invalid duration- cycle duration exceeding 1 year'))
                 elif schedule.period == 'Mesocycle' and derived_duration > 6:
                     raise ValidationError(_('Invalid duration- cycle duration exceeding 6 weeks'))
-                elif schedule.period == 'Microcycle' and derived_duration > 6:
+                elif schedule.period == 'Microcycle' and derived_duration > 1:
                     raise ValidationError(_('Invalid duration- cycle duration exceeding 1 week'))
 
                 return duration

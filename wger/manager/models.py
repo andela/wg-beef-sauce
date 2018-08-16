@@ -209,6 +209,7 @@ class Schedule(models.Model):
     '''Custom manager'''
 
     CYCLE_OPTIONS = [
+        (None, 'No period'),
         ('Microcycle', 'Microcycle(1 week)'),
         ('Mesocycle', 'Mesocycle(2-6 weeks)'),
         ('Macrocycle', 'Macrocycle(1 year)')
