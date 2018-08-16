@@ -70,6 +70,7 @@ class StepCreateView(WgerFormMixin, CreateView, PermissionRequiredMixin):
 
                 derived_duration = duration + sum_duration['duration__sum']
 
+                # Check if duration exceeds cycle duration
                 if schedule.period == 'Macrocycle' and derived_duration > 52:
                     raise ValidationError(_('Invalid duration- cycle duration exceeding 1 year'))
                 elif schedule.period == 'Mesocycle' and derived_duration > 6:
