@@ -19,22 +19,51 @@
                 paramName: 'term',
                 minChars: 3,
                 onSelect: function (suggestion) {
-                     window.location.href = '/nutrition/ingredient/' + suggestion.data.id + '/view/'
+                    window.location.href = '/nutrition/ingredient/' + suggestion.data.id + '/view/';
                 }
             });
         });
     </script>
 {% endblock %}
 
-{% block title %}{% trans "Ingredient overview" %}{% endblock %}
+{% block title %}
+    {% trans "Ingredient overview" %}
+    <div class="btn-group" style="float: right;">
+        <button type="button" class="btn btn-success dropdown-toggle btn-sm" data-toggle="dropdown">
+            {% trans 'Filter by language' %}
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            <li>
+                <a href={% url 'nutrition:ingredient:list' %}>None
+            </li>
+            {% for code, language in languages %}
+                <li>
+                    <a href={% url 'nutrition:ingredient:list' %}?lang={{ code }}>{{ language }}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary btn-sm" disabled>
+            {% if lang %}
+                {{ lang.full_name }}
+            {% else %}
+                All Languages
+            {% endif %}
+        </button>
+    </div>
+{% endblock %}
+
 
 
 {% block content %}
     {% if ingredients_list %}
         <div class="list-group">
             {% for ingredient in ingredients_list %}
-                <a class="list-group-item"
-                   href="{{ ingredient.get_absolute_url }}">
+                <a
+                    class="list-group-item"
+                    href="{{ ingredient.get_absolute_url }}">
                     {% if flavour == 'mobile' %}
                         <span class="glyphicon glyphicon-chevron-right pull-right"></span>
                     {% endif %}
@@ -44,8 +73,9 @@
         </div>
     {% else %}
         <p>
-            <a href="{% url 'nutrition:ingredient:add' %}"
-               class="btn btn-default btn-block">
+            <a
+                href="{% url 'nutrition:ingredient:add' %}"
+                class="btn btn-default btn-block">
                 {% trans "No ingredients." %} {% trans "Add one now." %}
             </a>
         </p>
@@ -59,16 +89,18 @@
 {% block sidebar %}
 
     <h4>{% trans "Search" %}</h4>
-    <form action="{% url 'ingredient-search' %}"
-          method="get"
-          id="search_form">
+    <form
+        action="{% url 'ingredient-search' %}"
+        method="get"
+        id="search_form">
         {% csrf_token %}
-        <input name="term"
-               type="search"
-               id="ingredient-search"
-               class="ajax-form-element form-control"
-               placeholder="{% trans 'ingredient name' %}"
-               style="width:100%;">
+        <input
+            name="term"
+            type="search"
+            id="ingredient-search"
+            class="ajax-form-element form-control"
+            placeholder="{% trans 'ingredient name' %}"
+            style="width:100%;">
     </form>
 {% endblock %}
 
@@ -78,8 +110,9 @@
 {#         #}
 {% block options %}
     {% if user.is_authenticated and not user.userprofile.is_temporary %}
-        <a href="{% url 'nutrition:ingredient:add' %}"
-           class="btn btn-success btn-sm">
+        <a
+            href="{% url 'nutrition:ingredient:add' %}"
+            class="btn btn-success btn-sm">
             {% trans "Add ingredient" %}
         </a>
     {% else %}
