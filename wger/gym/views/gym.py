@@ -250,7 +250,6 @@ def gym_permissions_user_edit(request, user_pk):
     if request.method == 'POST':
         form = GymUserPermisssionForm(request.POST,
                                       available_roles=form_group_permission)
-
         if form.is_valid():
 
             # Remove the user from all gym permission groups
