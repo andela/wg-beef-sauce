@@ -722,9 +722,6 @@ class WorkoutLog(models.Model):
 
     """Date change in log session"""
 
-    session_id = models.ForeignKey(WorkoutSession,
-                                   verbose_name=_('session_id'),
-                                   null=True)
 
     # Metaclass to set some other properties
     class Meta:
@@ -826,9 +823,10 @@ class WorkoutSession(models.Model):
     User notes about the workout
     '''
 
-    workout_session_logs = models.TextField(verbose_name=_('WorkoutLog'),
-                                            null=True,
-                                            blank=True)
+    session_id = models.ForeignKey(WorkoutLog,
+                                   verbose_name=_('WorkoutLog'),
+                                   null=True,
+                                   blank=True)
     '''
     Workout log that session belong to
     '''
