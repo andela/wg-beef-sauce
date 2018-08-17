@@ -182,7 +182,7 @@ def add(request, pk):
                 instance.user = request.user
                 instance.workout = day.training
                 instance.date = log_date
-                instance.session_id = session_id
+                instance.session_id = session_id.id
                 instance.save()
 
             return HttpResponseRedirect(reverse('manager:log:log', kwargs={'pk': day.training_id}))

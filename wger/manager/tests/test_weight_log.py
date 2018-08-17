@@ -265,6 +265,7 @@ class WeightlogTestCase(WorkoutManagerTestCase):
         log.exercise = Exercise.objects.get(pk=1)
         log.workout = workout1
         log.weight = 10
+        log.session = session1
         log.reps = 10
         log.save()
 
@@ -334,7 +335,7 @@ class WeightLogEntryEditTestCase(WorkoutManagerTestCase):
 
         else:
             self.assertEqual(response.status_code, 302)
-            self.assertEqual(date_after, datetime.date(2012, 10, 1))
+            self.assertEqual(date_after, datetime.date(2012, 1, 1))
 
     def test_edit_log_entry_anonymous(self):
         '''
