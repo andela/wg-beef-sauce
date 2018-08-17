@@ -722,7 +722,6 @@ class WorkoutLog(models.Model):
 
     """Date change in log session"""
 
-
     # Metaclass to set some other properties
     class Meta:
         ordering = ["date", "reps"]
