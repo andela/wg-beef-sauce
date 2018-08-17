@@ -748,7 +748,10 @@ class WorkoutLog(models.Model):
             date = self.date
 
         try:
-            return WorkoutSession.objects.filter(user=self.user).get(date=date)
+            if not self.session_id:
+                return WorkoutSession.objects.filter(user=self.user).get(date=date)
+            session_id = self.session_id
+            return WorkoutSession.objects.filter(user=self.user).get(date=date, id=session_id)
         except WorkoutSession.DoesNotExist:
             return None
 
