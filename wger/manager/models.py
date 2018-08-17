@@ -720,6 +720,12 @@ class WorkoutLog(models.Model):
 
     date = Html5DateField(verbose_name=_('Date'))
 
+    """Date change in log session"""
+
+    session_id = models.ForeignKey(WorkoutSession,
+                                   verbose_name=_('session_id'),
+                                   null=True)
+
     # Metaclass to set some other properties
     class Meta:
         ordering = ["date", "reps"]
