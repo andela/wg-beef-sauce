@@ -8,8 +8,8 @@
 <!--
         Title
 -->
-{% block title %}
-    {% trans "Exercises" %}
+{% block title %}{% trans "Exercises" %}
+
     <div class="btn-group" style="float: right;">
         <button type="button" class="btn btn-success dropdown-toggle btn-sm" data-toggle="dropdown">
             {% trans 'Filter by language' %}
@@ -19,9 +19,9 @@
             <li>
                 <a href={% url 'exercise:exercise:overview' %}>None
             </li>
-            {% for code, language in languages %}
+            {% for language_code, language in languages %}
                 <li>
-                    <a href={% url 'exercise:exercise:overview' %}?lang={{ code }}>{{ language }}
+                    <a href={% url 'exercise:exercise:overview' %}?lang={{ language_code }}>{{ language }}
                 </li>
             {% endfor %}
         </ul>
@@ -36,7 +36,6 @@
         </button>
     </div>
 {% endblock %}
-
 
 
 <!--
