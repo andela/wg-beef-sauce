@@ -6,31 +6,67 @@
 
 
 {% block content %}
-    <div class="list-group">
-        {% for workout in workouts %}
-            <a href="{{ workout.get_absolute_url }}" class="list-group-item">
-                <span class="glyphicon glyphicon-chevron-right pull-right"></span>
+<div class="list-group">
+    {% for workout in workouts %}
+    <a href="{{ workout.get_absolute_url }}" class="list-group-item">
+        <span class="glyphicon glyphicon-chevron-right pull-right"></span>
 
-                {% if workout == current_workout %}
-                <span class="badge">
+        {% if workout == current_workout %}
+        <span class="badge">
                     <em>{% trans "active" %}</em>
                 </span>
-                {% endif %}
+        {% endif %}
 
-                <h4 class="list-group-item-heading">{{ workout }}</h4>
-                <p class="list-group-item-text">{{ workout.creation_date }}</p>
-            </a>
-        {% empty %}
-            <a href="{% url 'manager:workout:add' %}" class="list-group-item">
-            {% trans "No workouts found." %}<br>{% trans "Add one now." %}
-            </a>
-        {% endfor %}
-    </div>
+        <h4 class="list-group-item-heading">{{ workout }}</h4>
+        <p class="list-group-item-text">{{ workout.creation_date }}</p>
+    </a>
+    {% empty %}
+    <a href="{% url 'manager:workout:add' %}" class="list-group-item">
+        {% trans "No workouts found." %}<br>{% trans "Add one now." %}
+    </a>
+    {% endfor %}
+</div>
 {% endblock %}
 
 
 {% block options %}
-<a href="{% url 'manager:workout:add' %}" class="btn btn-success btn-sm">
-    {% trans "Add workout" %}
-</a>
+<div class="container-fluid">
+    <a href="{% url 'manager:workout:add' %}" class="btn btn-success btn-sm">
+        {% trans "Add workout" %}
+    </a>
+    <a href="{% url 'manager:workout:workout_export' %}" class="btn btn-success btn-sm">
+        {% trans "Export workout" %}
+    </a>
+    <a href="#" class="btn btn-success btn-sm" data-toggle="modal"
+       data-target="#importModal">
+        {% trans "Import Workout" %}
+    </a>
+    <!-- Import modal -->
+        <div class="modal fade modal-sm" id="importModal" tabindex="-1" role="dialog"
+             aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Import Workout in JSON</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'manager:workout:workout_import' %}" method="post">
+                        <div class="form-group row">
+                            <div class="col-sm-8">
+                                <input type="file" class="form-control-file" id="exampleFormControlFile1"
+                                   accept=".json"/>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success">Import</button>
+                </div>
+            </div>
+        </div>
+</div>
+
 {% endblock %}

@@ -215,6 +215,22 @@ def add(request):
     return HttpResponseRedirect(workout.get_absolute_url())
 
 
+@login_required
+def workout_export(request):
+    '''
+    Export workout and save in json format
+    '''
+    return HttpResponseRedirect(workout_export.get_absolute_url())
+
+
+@login_required
+def workout_import(request):
+    '''
+    Import workout to dashboard in json format
+    '''
+    pass
+
+
 class WorkoutDeleteView(WgerDeleteMixin, LoginRequiredMixin, DeleteView):
     '''
     Generic view to delete a workout routine
