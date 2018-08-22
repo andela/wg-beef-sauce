@@ -254,6 +254,13 @@ class Schedule(models.Model):
                               choices=CYCLE_OPTIONS,
                               null=True)
 
+    buddy = models.ManyToManyField(User,
+                                   related_name='user_workout_buddy',
+                                   verbose_name=_('Workout buddy/partner'),
+                                   help_text=_("Add buddy/partner to your workout schedule"),
+                                   blank=True)
+    '''Workout buddy/partner added to schedule'''
+
     def __str__(self):
         '''
         Return a more human-readable representation

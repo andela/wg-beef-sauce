@@ -234,7 +234,12 @@ patterns_step = [
         name='delete'),
 ]
 
-
+# sub patterns for schedule users
+patterns_buddy = [
+    url(r'^(?P<pk>\d+)/buddy/add$',
+        schedule.ScheduleUserEditView.as_view(),
+        name='add'),
+]
 
 urlpatterns = [
    url(r'^', include(patterns_workout, namespace="workout")),
@@ -244,4 +249,6 @@ urlpatterns = [
    url(r'^session/', include(patterns_session, namespace="session")),
    url(r'^schedule/', include(patterns_schedule, namespace="schedule")),
    url(r'^schedule/step/', include(patterns_step, namespace="step")),
+   url(r'^schedule/buddy/', include(patterns_buddy, namespace="buddy")),
+
 ]

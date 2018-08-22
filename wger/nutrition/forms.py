@@ -80,7 +80,7 @@ class BmrForm(forms.ModelForm):
         model = UserProfile
         fields = ('age', 'height', 'gender')
 
-
+3
 class PhysicalActivitiesForm(forms.ModelForm):
     '''
     Form for the additional physical activities

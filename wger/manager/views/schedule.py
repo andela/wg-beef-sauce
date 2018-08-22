@@ -41,6 +41,8 @@ from reportlab.platypus import (
     Spacer
 )
 
+from django import forms
+from django.forms import ModelForm
 from wger.manager.models import Schedule
 from wger.manager.helpers import render_workout_day
 from wger.utils.generic_views import (
@@ -49,6 +51,10 @@ from wger.utils.generic_views import (
 )
 from wger.utils.helpers import make_token, check_token
 from wger.utils.pdf import styleSheet, render_footer
+
+from django.contrib.auth.models import User
+
+from django.core.exceptions import ValidationError
 
 
 logger = logging.getLogger(__name__)
@@ -82,6 +88,7 @@ def view(request, pk):
     uid, token = make_token(user)
 
     template_data['schedule'] = schedule
+    template_data['buddy'] = schedule.buddy.all()
     if schedule.is_active:
         template_data['active_workout'] = schedule.get_current_scheduled_workout()
     else:
@@ -301,3 +308,52 @@ class ScheduleEditView(WgerFormMixin, UpdateView, PermissionRequiredMixin):
         context = super(ScheduleEditView, self).get_context_data(**kwargs)
         context['title'] = _(u'Edit {0}').format(self.object)
         return context
+
+
+class ScheduleUserEditView(WgerFormMixin, UpdateView, PermissionRequiredMixin):
+    '''
+    Generic view to update an existing workout routine
+    '''
+
+    model = Schedule
+    fields = ('buddy',)
+    title = ugettext_lazy('Edit workout')
+    form_action_urlname = 'manager:buddy:add'
+
+    def get_form_class(self):
+        '''
+        The form can only show the workouts belonging to the user.
+
+        This is defined here because only at this point during the request
+        have we access to the current user
+        '''
+
+        class BuddyForm(ModelForm):
+            buddy = forms.CharField(max_length=40,
+                                    required=True)
+
+            def clean_buddy(self):
+                buddy = self.cleaned_data['buddy']
+                user = User.objects.filter(username=buddy)
+                if not user.exists():
+                    raise ValidationError(_('User account not available'))
+
+                return user
+
+            class Meta:
+                model = Schedule
+                fields = ('buddy',)
+
+        return BuddyForm
+
+    def get_context_data(self, **kwargs):
+        '''
+        Send some additional data to the template
+        '''
+        context = super(ScheduleUserEditView, self).get_context_data(**kwargs)
+        context['title'] = _(u'Edit {0}').format(self.object)
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('manager:schedule:view', kwargs={'pk': self.object.id})
+
