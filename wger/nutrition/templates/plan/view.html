@@ -97,6 +97,13 @@ function wgerCustomModalInit()
             {% endif %}
             {{ item.ingredient.name }}
 
+            <!-- Add badge for Meal Type -->
+            {% if item.meal_type == 'Planned' %}
+                <span class="label label-info">Planned Meal</span>
+            {% else %}
+                <span class="label label-success">Meal Eaten</span>
+            {% endif %}
+
             {% if is_owner %}
             <span class="editoptions">
                 <a href="{% url 'nutrition:meal_item:delete' item.id %}"
