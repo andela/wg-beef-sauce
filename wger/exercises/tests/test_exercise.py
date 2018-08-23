@@ -85,8 +85,8 @@ class ExerciseIndexTestCase(WorkoutManagerTestCase):
         self.assertEqual(category_1.name, "Another category")
 
         category_2 = response.context['exercises'][1].category
-        self.assertEqual(category_2.id, 2)
-        self.assertEqual(category_2.name, "Another category")
+        self.assertEqual(category_2.id, 3)
+        self.assertEqual(category_2.name, "Yet another category")
 
         # Correct exercises in the categories
         exercises_1 = category_1.exercise_set.all()
@@ -258,6 +258,17 @@ class ExercisesTestCase(WorkoutManagerTestCase):
         self.user_logout()
         self.add_exercise_user_fail()
         self.user_logout()
+
+    def filter_exercise_by_language(self, admin=False):
+        '''
+        Tests adding/editing an exercise with a user with enough rights to do this
+        '''
+
+        # Add an exercise
+        count_before = Exercise.objects.count()
+        description = 'a nice, long and accurate description for the exercise'
+        response = self.client.post(reverse('exercise:exercise:overview'), params={lang: "en"})
+        self.assertEqual(response.status_code, 200)
 
     def add_exercise_success(self, admin=False):
         '''
