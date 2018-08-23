@@ -85,6 +85,7 @@ def view(request, pk):
     schedule = get_object_or_404(Schedule, pk=pk)
     user = schedule.user
     is_owner = request.user == user
+    print(schedule.user)
 
     if not is_owner and not user.userprofile.ro_access:
         return HttpResponseForbidden()
@@ -92,12 +93,18 @@ def view(request, pk):
     uid, token = make_token(user)
 
     template_data['schedule'] = schedule
+    # Fetch all users that have been added as workout buddies for the specified schedule.
     template_data['buddy'] = schedule.buddy.all()
 
-    schedule_members = template_data['buddy'] | User.objects.filter(username=request.user)
+    # Get user/buddy weight data for comparison chart.
+    schedule_members = template_data['buddy'] | User.objects\
+        .filter(username__in=(request.user, schedule.user))
     weight_entries = WeightEntry.objects.filter(user__in=schedule_members).all()
     dates = list(set([entry.date for entry in weight_entries]))
+    # Order list of dates in ascending order.
+    dates.sort()
     y_data = {}
+    # Associate users with corresponding weight values and their dates.
     for entry in weight_entries:
         if entry.user.username not in y_data:
             y_data[entry.user.username] = [None] * len(dates)
@@ -335,7 +342,7 @@ class ScheduleUserEditView(WgerFormMixin, UpdateView, PermissionRequiredMixin):
 
     model = Schedule
     fields = ('buddy',)
-    title = ugettext_lazy('Edit workout')
+    title = ugettext_lazy('Add workout buddy')
     form_action_urlname = 'manager:buddy:add'
 
     def get_form_class(self):
@@ -364,13 +371,6 @@ class ScheduleUserEditView(WgerFormMixin, UpdateView, PermissionRequiredMixin):
 
         return BuddyForm
 
-    def get_context_data(self, **kwargs):
-        '''
-        Send some additional data to the template
-        '''
-        context = super(ScheduleUserEditView, self).get_context_data(**kwargs)
-        context['title'] = _(u'Edit {0}').format(self.object)
-        return context
 
     def get_success_url(self):
         return reverse_lazy('manager:schedule:view', kwargs={'pk': self.object.id})
