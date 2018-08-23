@@ -17,26 +17,31 @@
 import logging
 import uuid
 import datetime
+import json
+from django.contrib import messages
 
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect, HttpResponseForbidden
+from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponse, JsonResponse
 from django.template.context_processors import csrf
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils.translation import ugettext_lazy, ugettext as _
-from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.views.generic import DeleteView, UpdateView
 
+from wger.exercises.models import Exercise
 from wger.core.models import (
     RepetitionUnit,
-    WeightUnit
+    WeightUnit,
+    DaysOfWeek
 )
 from wger.manager.models import (
     Workout,
     WorkoutSession,
     WorkoutLog,
     Schedule,
-    Day
+    Day,
+    Set
 )
 from wger.manager.forms import (
     WorkoutForm,
@@ -48,7 +53,6 @@ from wger.utils.generic_views import (
     WgerDeleteMixin
 )
 from wger.utils.helpers import make_token
-
 
 logger = logging.getLogger(__name__)
 
@@ -213,6 +217,75 @@ def add(request):
     workout.save()
 
     return HttpResponseRedirect(workout.get_absolute_url())
+
+
+@login_required
+def workout_export(request):
+    # Filter all the workouts of the user
+    workouts = Workout.objects.filter(user=request.user)
+    # Create a dict to store json data exported
+    get_json_data = {}
+    for workout in workouts:
+        # Loop through each workout in the listed items
+        workout_data = {}
+        workout_data['creation_date'] = str(workout.creation_date)
+        workout_data['comment'] = workout.comment
+        days = Day.objects.filter(training=workout.id)
+        # loop through all items in the days received of each workout
+        for day in days:
+            # Store the data received in workout_data dictionary
+            workout_days = [record.day_of_week for record in day.day.all()]
+            workout_data['description'] = day.description
+            workout_data['workout_days'] = workout_days
+            sets = Set.objects.filter(exerciseday=day.id)
+            for each_set in sets:
+                # Also save the exercises received in workout_data dictionary
+                exercises = [exercise.name for exercise in each_set.exercises.all()]
+                workout_data['exercises'] = exercises
+        # Add all the data in the json file to be exported in according to primary key
+        get_json_data[str(workout.pk)] = workout_data
+    # Get json response to download the file
+    data = JsonResponse(get_json_data)
+    response = HttpResponse(data, content_type='application/force-download')
+    response['Content-Disposition'] = 'attachment; filename="workouts.json"'
+    return response
+
+
+@login_required
+def workout_import(request):
+    if request.POST and request.FILES:
+        my_json_file = request.FILES['csv_file'].file
+        data = my_json_file.read()
+        # Load json data to workout after decoding
+        # Make sure that '' is replaced with ""
+        workouts = json.loads(data.decode('utf8').replace("'", '"'))
+        for workout in workouts:
+            # create workouts for the user
+            new_workout = Workout(
+                creation_date=workouts[workout]['creation_date'],
+                comment=workouts[workout]["comment"],
+                user=request.user)
+            new_workout.save()
+            # Check if workouts does not have dates
+            # If it does not exist, then create data
+            if 'workout_days' in workouts[workout]:
+                day = Day(training=new_workout, description=workouts[workout]["description"])
+                day.save()
+                for day_name in workouts[workout]["workout_days"]:
+                    day.day.add(
+                        DaysOfWeek.objects.filter(day_of_week=day_name).first()
+                    )
+                # Create exercises if workouts have them
+                if 'exercises' in workouts[workout]:
+                    workout_set = Set(exerciseday=day)
+                    workout_set.save()
+                    for exercise in workouts[workout]["exercises"]:
+                        workout_set.exercises.add(
+                            Exercise.objects.filter(name=exercise).first()
+                        )
+    messages.success(request, _(
+        'Your workouts have been imported successfully.'))
+    return HttpResponseRedirect(reverse('manager:workout:overview'))
 
 
 class WorkoutDeleteView(WgerDeleteMixin, LoginRequiredMixin, DeleteView):
