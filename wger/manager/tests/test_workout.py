@@ -200,3 +200,31 @@ class WorkoutApiTestCase(api_base_test.ApiBaseResourceTestCase):
     private_resource = True
     special_endpoints = ('canonical_representation',)
     data = {'comment': 'A new comment'}
+
+
+class WorkoutExportTestCase(WorkoutManagerTestCase):
+    '''
+    Tests the workout export
+    '''
+
+    def get_workout_overview(self):
+        '''
+        Test workout export endpoint
+        '''
+        response = self.client.get(reverse('manager:workout:workout_export'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEquals(response.get('Content-Disposition'),
+                          "attachment; filename=workouts.json")
+
+
+class WorkoutImportTestCase(WorkoutManagerTestCase):
+    '''
+    Tests the workout import
+    '''
+
+    def get_workout_overview(self):
+        '''
+        Test workout import endpoint
+        '''
+        response = self.client.post(reverse('manager:workout:workout_import'))
+        self.assertEqual(response.status_code, 200)
