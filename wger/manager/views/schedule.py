@@ -85,7 +85,6 @@ def view(request, pk):
     schedule = get_object_or_404(Schedule, pk=pk)
     user = schedule.user
     is_owner = request.user == user
-    print(schedule.user)
 
     if not is_owner and not user.userprofile.ro_access:
         return HttpResponseForbidden()
@@ -371,7 +370,5 @@ class ScheduleUserEditView(WgerFormMixin, UpdateView, PermissionRequiredMixin):
 
         return BuddyForm
 
-
     def get_success_url(self):
         return reverse_lazy('manager:schedule:view', kwargs={'pk': self.object.id})
-

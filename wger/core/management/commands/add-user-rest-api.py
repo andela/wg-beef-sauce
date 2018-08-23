@@ -17,6 +17,7 @@
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class Command(BaseCommand):
@@ -41,5 +42,5 @@ class Command(BaseCommand):
                 user.userprofile.create_use_rest_api = True
                 user.userprofile.save()
                 print("{} is now able to access REST API to create users".format(username))
-        except:
+        except ObjectDoesNotExist:
             print("User {} does not exist".format(username))
