@@ -70,6 +70,8 @@ def overview(request):
     template_data['schedules'] = (Schedule.objects
                                   .filter(user=request.user)
                                   .order_by('-is_active', '-start_date'))
+    template_data['schedules'] = template_data['schedules'] | Schedule.objects\
+        .filter(buddy=request.user)
     return render(request, 'schedule/overview.html', template_data)
 
 
