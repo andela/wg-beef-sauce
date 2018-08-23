@@ -237,7 +237,7 @@ patterns_step = [
 # sub patterns for schedule users
 patterns_buddy = [
     url(r'^(?P<pk>\d+)/buddy/add$',
-        schedule.ScheduleUserEditView.as_view(),
+        schedule.ScheduleUserAddView.as_view(),
         name='add'),
 ]
 

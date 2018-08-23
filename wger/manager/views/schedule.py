@@ -44,7 +44,7 @@ from reportlab.platypus import (
 
 from django import forms
 from django.forms import ModelForm
-from wger.manager.models import Schedule
+from wger.manager.models import Schedule, ScheduleBuddy
 from wger.manager.helpers import render_workout_day
 from wger.utils.generic_views import (
     WgerFormMixin,
@@ -72,8 +72,10 @@ def overview(request):
     template_data['schedules'] = (Schedule.objects
                                   .filter(user=request.user)
                                   .order_by('-is_active', '-start_date'))
-    template_data['schedules'] = template_data['schedules'] | Schedule.objects\
-        .filter(buddy=request.user)
+    # Fetch all schedules either added by user or where user is a buddy
+    x = ScheduleBuddy.objects.filter(buddy=request.user)
+    y = Schedule.objects.filter(pk__in=[bud.schedule.id for bud in x])
+    template_data['schedules'] = template_data['schedules'] | y
     return render(request, 'schedule/overview.html', template_data)
 
 
@@ -93,10 +95,11 @@ def view(request, pk):
 
     template_data['schedule'] = schedule
     # Fetch all users that have been added as workout buddies for the specified schedule.
-    template_data['buddy'] = schedule.buddy.all()
+    buddy_list = [buddy.buddy for buddy in ScheduleBuddy.objects.filter(schedule=schedule)]
+    template_data['buddy'] = User.objects.filter(username__in=buddy_list)
 
     # Get user/buddy weight data for comparison chart.
-    schedule_members = template_data['buddy'] | User.objects\
+    schedule_members = User.objects.filter(username__in=buddy_list) | User.objects\
         .filter(username__in=(request.user, schedule.user))
     weight_entries = WeightEntry.objects.filter(user__in=schedule_members).all()
     dates = list(set([entry.date for entry in weight_entries]))
@@ -322,7 +325,7 @@ class ScheduleEditView(WgerFormMixin, UpdateView, PermissionRequiredMixin):
     '''
 
     model = Schedule
-    fields = '__all__'
+    fields = ('name', 'start_date', 'is_active', 'is_loop', 'period')
     form_action_urlname = 'manager:schedule:edit'
 
     def get_context_data(self, **kwargs):
@@ -334,7 +337,7 @@ class ScheduleEditView(WgerFormMixin, UpdateView, PermissionRequiredMixin):
         return context
 
 
-class ScheduleUserEditView(WgerFormMixin, UpdateView, PermissionRequiredMixin):
+class ScheduleUserAddView(WgerFormMixin, CreateView, PermissionRequiredMixin):
     '''
     Generic view to update an existing workout routine
     '''
@@ -342,7 +345,6 @@ class ScheduleUserEditView(WgerFormMixin, UpdateView, PermissionRequiredMixin):
     model = Schedule
     fields = ('buddy',)
     title = ugettext_lazy('Add workout buddy')
-    form_action_urlname = 'manager:buddy:add'
 
     def get_form_class(self):
         '''
@@ -358,17 +360,41 @@ class ScheduleUserEditView(WgerFormMixin, UpdateView, PermissionRequiredMixin):
 
             def clean_buddy(self):
                 buddy = self.cleaned_data['buddy']
-                user = User.objects.filter(username=buddy)
+                user = User.objects.filter(username__in=buddy.split(' '))
                 if not user.exists():
-                    raise ValidationError(_('User account not available'))
+                    raise ValidationError(_('Invalid User Account'))
 
-                return user
+                return user[0]
 
             class Meta:
-                model = Schedule
-                fields = ('buddy',)
+                model = ScheduleBuddy
+                exclude = ('schedule',)
+
+            def __init__(self, schedule_id, *args, **kwargs):
+                super(BuddyForm, self).__init__(*args, **kwargs)
+
+                # set the schedule_id as an attribute of the form
+                self.schedule_id = schedule_id
 
         return BuddyForm
 
+    def get_form_kwargs(self):
+        kwargs = super(CreateView, self).get_form_kwargs()
+        kwargs['schedule_id'] = self.kwargs['pk']
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(ScheduleUserAddView, self).get_context_data(**kwargs)
+        context['form_action'] = reverse('manager:buddy:add',
+                                         kwargs={'pk': self.kwargs['pk']})
+        return context
+
     def get_success_url(self):
-        return reverse_lazy('manager:schedule:view', kwargs={'pk': self.object.id})
+        return reverse('manager:schedule:view', kwargs={'pk': self.kwargs['pk']})
+
+    def form_valid(self, form):
+        '''set the submitter'''
+        schedule = Schedule.objects.get(pk=self.kwargs['pk'])
+
+        form.instance.schedule = schedule
+        return super(ScheduleUserAddView, self).form_valid(form)

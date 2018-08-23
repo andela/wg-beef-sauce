@@ -229,9 +229,7 @@
         <thead>
         <tr>
             <th>{% trans "Nr." %}</th>
-            {% if is_owner %}
-            <th>{% trans "Actions" %}</th>
-            {% endif %}
+            <th></th>
             <th>{% trans "Buddy" %}</th>
         </tr>
         </thead>
@@ -242,21 +240,17 @@
                 {{ forloop.counter }}
             </td>
             {% if is_owner %}
-            <td style="min-width: 6em;">
-            <span class="editoptions">
-                <span title="{% trans 'Move me' %}" class="dragndrop-handle {% fa_class 'bars' %}"></span>
+             <td style="min-width: 6em;">
+             <span class="editoptions">
+                 <span title="{% trans 'Move me' %}" class="dragndrop-handle {% fa_class 'bars' %}"></span>
 
-                 <a href="{% url 'manager:step:edit' bud.id %}"
-                    title="{% trans 'Edit' %}"
+                 <a href="{% url 'manager:buddy:delete' bud.id %}"
+                    title="{% trans 'Delete' %}"
                     class="wger-modal-dialog">
-                    <span class="{% fa_class 'pencil-square-o' %}"></span></a>
-                <a href="{% url 'manager:step:delete' bud.id %}"
-                   title="{% trans 'Delete' %}"
-                   class="wger-modal-dialog">
-                    <span class="{% fa_class 'trash' %}"></span></a>
-            </span>
-            </td>
-            {% endif %}
+                     <span class="{% fa_class 'trash' %}"></span></a>
+             </span>
+             </td>
+             {% endif %}
             <td>
                 <a href="{{ bud.username.get_absolute_url }}">{{ bud.username }}</a>
             </td>
@@ -265,7 +259,7 @@
         {% if is_owner %}
         <tr>
             <td colspan="4">
-                <a href="{% url 'manager:step:add' schedule.id %}" class="wger-modal-dialog btn btn-block btn-default">
+                <a href="{% url 'manager:buddy:add' schedule.id %}" class="wger-modal-dialog btn btn-block btn-default">
                     {% trans "No buddies found." %} {% trans "Add one now." %}
                 </a>
             </td>

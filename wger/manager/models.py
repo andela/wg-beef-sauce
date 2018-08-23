@@ -254,13 +254,6 @@ class Schedule(models.Model):
                               choices=CYCLE_OPTIONS,
                               null=True)
 
-    buddy = models.ManyToManyField(User,
-                                   related_name='user_workout_buddy',
-                                   verbose_name=_('Workout buddy/partner'),
-                                   help_text=_("Add buddy/partner to your workout schedule"),
-                                   blank=True)
-    '''Workout buddy/partner added to schedule'''
-
     def __str__(self):
         '''
         Return a more human-readable representation
@@ -319,6 +312,17 @@ class Schedule(models.Model):
         for step in self.schedulestep_set.all():
             end_date = end_date + datetime.timedelta(weeks=step.duration)
         return end_date
+
+
+@python_2_unicode_compatible
+class ScheduleBuddy(models.Model):
+    schedule = models.ForeignKey(Schedule,
+                                 verbose_name=_('schedule'))
+    '''The schedule a buddy belongs to'''
+
+    buddy = models.ForeignKey(User,
+                              verbose_name=_('Workout buddy/partner'))
+    '''Workout buddy'''
 
 
 @python_2_unicode_compatible
