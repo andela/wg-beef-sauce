@@ -421,4 +421,3 @@ class ScheduleUserDeleteView(WgerDeleteMixin, DeleteView, PermissionRequiredMixi
         context['title'] = _(u'Delete {0}?').format(self.object)
         context['form_action'] = reverse('core:license:delete', kwargs={'pk': self.kwargs['pk']})
         return context
-
