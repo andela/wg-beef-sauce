@@ -282,7 +282,7 @@ class ScheduleCreateView(WgerFormMixin, CreateView, PermissionRequiredMixin):
     '''
 
     model = Schedule
-    fields = '__all__'
+    fields = ('name', 'start_date', 'is_active', 'is_loop', 'period')
     success_url = reverse_lazy('manager:schedule:overview')
     title = ugettext_lazy('Create schedule')
     form_action = reverse_lazy('manager:schedule:add')
