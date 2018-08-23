@@ -239,6 +239,9 @@ patterns_buddy = [
     url(r'^(?P<pk>\d+)/buddy/add$',
         schedule.ScheduleUserAddView.as_view(),
         name='add'),
+    url(r'^(?P<pk>\d+)/delete$',
+        schedule.ScheduleUserDeleteView.as_view(),
+        name='delete'),
 ]
 
 urlpatterns = [

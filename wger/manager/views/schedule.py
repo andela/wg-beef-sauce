@@ -398,3 +398,27 @@ class ScheduleUserAddView(WgerFormMixin, CreateView, PermissionRequiredMixin):
 
         form.instance.schedule = schedule
         return super(ScheduleUserAddView, self).form_valid(form)
+
+
+class ScheduleUserDeleteView(WgerDeleteMixin, DeleteView, PermissionRequiredMixin):
+    '''
+    Generic view to delete a schedule step
+    '''
+
+    model = ScheduleBuddy
+    fields = ('buddy',)
+    form_action_urlname = 'manager:schedule:delete'
+    messages = ugettext_lazy('Successfully deleted')
+
+    def get_success_url(self):
+        return reverse('manager:schedule:view', kwargs={'pk': self.object.schedule.id})
+
+    def get_context_data(self, **kwargs):
+        '''
+        Send some additional data to the template
+        '''
+        context = super(ScheduleUserDeleteView, self).get_context_data(**kwargs)
+        context['title'] = _(u'Delete {0}?').format(self.object)
+        context['form_action'] = reverse('core:license:delete', kwargs={'pk': self.kwargs['pk']})
+        return context
+
