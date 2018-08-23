@@ -16,6 +16,7 @@
 
 import logging
 import datetime
+import json
 
 from django.shortcuts import render, get_object_or_404
 from django.http import (
@@ -53,6 +54,7 @@ from wger.utils.helpers import make_token, check_token
 from wger.utils.pdf import styleSheet, render_footer
 
 from django.contrib.auth.models import User
+from wger.weight.models import WeightEntry
 
 from django.core.exceptions import ValidationError
 
@@ -91,6 +93,20 @@ def view(request, pk):
 
     template_data['schedule'] = schedule
     template_data['buddy'] = schedule.buddy.all()
+
+    schedule_members = template_data['buddy'] | User.objects.filter(username=request.user)
+    weight_entries = WeightEntry.objects.filter(user__in=schedule_members).all()
+    dates = list(set([entry.date for entry in weight_entries]))
+    y_data = {}
+    for entry in weight_entries:
+        if entry.user.username not in y_data:
+            y_data[entry.user.username] = [None] * len(dates)
+            y_data[entry.user.username][dates.index(entry.date)] = int(entry.weight)
+        else:
+            y_data[entry.user.username][dates.index(entry.date)] = int(entry.weight)
+    x_data = [date.strftime('%b %d %Y') for date in dates]
+    template_data['user_plot_data'] = json.dumps([y_data, x_data])
+
     if schedule.is_active:
         template_data['active_workout'] = schedule.get_current_scheduled_workout()
     else:
