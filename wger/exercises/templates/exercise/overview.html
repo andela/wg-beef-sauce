@@ -5,6 +5,17 @@
 {% load cache %}
 {% load thumbnail %}
 
+{% block header %}
+    <script>
+        $(document).ready(function () {
+            // show info when you hove over the tabs in exercise
+            $('ul').find('a').hover(function () {
+                $(this).tab('show');
+            });
+        });
+    </script>
+{% endblock %}
+
 <!--
         Title
 -->
