@@ -4640,7 +4640,10 @@
             "category": 13,
             "uuid": "89e6d2ea-9a17-4a77-9a52-d5bcf39d57fd",
             "muscles": [
-                2
+                2,
+                17,
+                19,
+                20
             ],
             "license": 1,
             "name": "Military Press"
@@ -5296,7 +5299,10 @@
             "category": 13,
             "uuid": "a7e15f4f-a7e6-4c0c-9bcb-ef3de90201aa",
             "muscles": [
-                2
+                2,
+                17,
+                19,
+                20
             ],
             "license": 1,
             "name": "Cable External Rotation"
@@ -6146,7 +6152,10 @@
                 6,
                 3,
                 15,
-                5
+                5,
+                17,
+                19,
+                20
             ],
             "license": 2,
             "name": "Bear Walk"
@@ -6336,7 +6345,10 @@
                 2,
                 8,
                 14,
-                3
+                3,
+                17,
+                19,
+                20
             ],
             "license": 2,
             "name": "Turkish Get-Up"
@@ -6417,7 +6429,10 @@
             "category": 10,
             "uuid": "392a531f-f0d6-4f65-b890-63776fc6b053",
             "muscles": [
-                2
+                2,
+                17,
+                19,
+                20
             ],
             "license": 3,
             "name": "Decline Press Sit-Up"
