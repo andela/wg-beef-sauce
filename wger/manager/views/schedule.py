@@ -16,6 +16,7 @@
 
 import logging
 import datetime
+import json
 
 from django.shortcuts import render, get_object_or_404
 from django.http import (
@@ -41,7 +42,9 @@ from reportlab.platypus import (
     Spacer
 )
 
-from wger.manager.models import Schedule
+from django import forms
+from django.forms import ModelForm
+from wger.manager.models import Schedule, ScheduleBuddy
 from wger.manager.helpers import render_workout_day
 from wger.utils.generic_views import (
     WgerFormMixin,
@@ -49,6 +52,11 @@ from wger.utils.generic_views import (
 )
 from wger.utils.helpers import make_token, check_token
 from wger.utils.pdf import styleSheet, render_footer
+
+from django.contrib.auth.models import User
+from wger.weight.models import WeightEntry
+
+from django.core.exceptions import ValidationError
 
 
 logger = logging.getLogger(__name__)
@@ -64,6 +72,10 @@ def overview(request):
     template_data['schedules'] = (Schedule.objects
                                   .filter(user=request.user)
                                   .order_by('-is_active', '-start_date'))
+    # Fetch all schedules either added by user or where user is a buddy
+    x = ScheduleBuddy.objects.filter(buddy=request.user)
+    y = Schedule.objects.filter(pk__in=[bud.schedule.id for bud in x])
+    template_data['schedules'] = template_data['schedules'] | y
     return render(request, 'schedule/overview.html', template_data)
 
 
@@ -82,6 +94,28 @@ def view(request, pk):
     uid, token = make_token(user)
 
     template_data['schedule'] = schedule
+    # Fetch all users that have been added as workout buddies for the specified schedule.
+    buddy_list = [buddy.buddy for buddy in ScheduleBuddy.objects.filter(schedule=schedule)]
+    template_data['buddy'] = User.objects.filter(username__in=buddy_list)
+
+    # Get user/buddy weight data for comparison chart.
+    schedule_members = User.objects.filter(username__in=buddy_list) | User.objects\
+        .filter(username__in=(request.user, schedule.user))
+    weight_entries = WeightEntry.objects.filter(user__in=schedule_members).all()
+    dates = list(set([entry.date for entry in weight_entries]))
+    # Order list of dates in ascending order.
+    dates.sort()
+    y_data = {}
+    # Associate users with corresponding weight values and their dates.
+    for entry in weight_entries:
+        if entry.user.username not in y_data:
+            y_data[entry.user.username] = [None] * len(dates)
+            y_data[entry.user.username][dates.index(entry.date)] = int(entry.weight)
+        else:
+            y_data[entry.user.username][dates.index(entry.date)] = int(entry.weight)
+    x_data = [date.strftime('%b %d %Y') for date in dates]
+    template_data['user_plot_data'] = json.dumps([y_data, x_data])
+
     if schedule.is_active:
         template_data['active_workout'] = schedule.get_current_scheduled_workout()
     else:
@@ -251,7 +285,7 @@ class ScheduleCreateView(WgerFormMixin, CreateView, PermissionRequiredMixin):
     '''
 
     model = Schedule
-    fields = '__all__'
+    fields = ('name', 'start_date', 'is_active', 'is_loop', 'period')
     success_url = reverse_lazy('manager:schedule:overview')
     title = ugettext_lazy('Create schedule')
     form_action = reverse_lazy('manager:schedule:add')
@@ -291,7 +325,7 @@ class ScheduleEditView(WgerFormMixin, UpdateView, PermissionRequiredMixin):
     '''
 
     model = Schedule
-    fields = '__all__'
+    fields = ('name', 'start_date', 'is_active', 'is_loop', 'period')
     form_action_urlname = 'manager:schedule:edit'
 
     def get_context_data(self, **kwargs):
@@ -300,4 +334,90 @@ class ScheduleEditView(WgerFormMixin, UpdateView, PermissionRequiredMixin):
         '''
         context = super(ScheduleEditView, self).get_context_data(**kwargs)
         context['title'] = _(u'Edit {0}').format(self.object)
+        return context
+
+
+class ScheduleUserAddView(WgerFormMixin, CreateView, PermissionRequiredMixin):
+    '''
+    Generic view to update an existing workout routine
+    '''
+
+    model = Schedule
+    fields = ('buddy',)
+    title = ugettext_lazy('Add workout buddy')
+
+    def get_form_class(self):
+        '''
+        The form can only show the workouts belonging to the user.
+
+        This is defined here because only at this point during the request
+        have we access to the current user
+        '''
+
+        class BuddyForm(ModelForm):
+            buddy = forms.CharField(max_length=40,
+                                    required=True)
+
+            def clean_buddy(self):
+                buddy = self.cleaned_data['buddy']
+                user = User.objects.filter(username__in=buddy.split(' '))
+                if not user.exists():
+                    raise ValidationError(_('Invalid User Account'))
+
+                return user[0]
+
+            class Meta:
+                model = ScheduleBuddy
+                exclude = ('schedule',)
+
+            def __init__(self, schedule_id, *args, **kwargs):
+                super(BuddyForm, self).__init__(*args, **kwargs)
+
+                # set the schedule_id as an attribute of the form
+                self.schedule_id = schedule_id
+
+        return BuddyForm
+
+    def get_form_kwargs(self):
+        kwargs = super(CreateView, self).get_form_kwargs()
+        kwargs['schedule_id'] = self.kwargs['pk']
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(ScheduleUserAddView, self).get_context_data(**kwargs)
+        context['form_action'] = reverse('manager:buddy:add',
+                                         kwargs={'pk': self.kwargs['pk']})
+        return context
+
+    def get_success_url(self):
+        return reverse('manager:schedule:view', kwargs={'pk': self.kwargs['pk']})
+
+    def form_valid(self, form):
+        '''set the submitter'''
+        schedule = Schedule.objects.get(pk=self.kwargs['pk'])
+
+        form.instance.schedule = schedule
+        return super(ScheduleUserAddView, self).form_valid(form)
+
+
+class ScheduleUserDeleteView(WgerDeleteMixin, DeleteView, PermissionRequiredMixin):
+    '''
+    Generic view to delete a schedule step
+    '''
+
+    model = ScheduleBuddy
+    fields = ('buddy',)
+    form_action_urlname = 'manager:schedule:delete'
+    messages = ugettext_lazy('Successfully deleted')
+
+    def get_success_url(self):
+        return reverse('manager:schedule:view', kwargs={'pk': self.object.schedule.id})
+
+    def get_context_data(self, **kwargs):
+        '''
+        Send some additional data to the template
+        '''
+        context = super(ScheduleUserDeleteView, self).get_context_data(**kwargs)
+        context['title'] = _(u'Delete {0}?').format(self.object)
+        context['form_action'] = reverse('core:license:delete', kwargs={'pk': self.kwargs['pk']})
         return context

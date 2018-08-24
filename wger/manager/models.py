@@ -315,6 +315,17 @@ class Schedule(models.Model):
 
 
 @python_2_unicode_compatible
+class ScheduleBuddy(models.Model):
+    schedule = models.ForeignKey(Schedule,
+                                 verbose_name=_('schedule'))
+    '''The schedule a buddy belongs to'''
+
+    buddy = models.ForeignKey(User,
+                              verbose_name=_('Workout buddy/partner'))
+    '''Workout buddy'''
+
+
+@python_2_unicode_compatible
 class ScheduleStep(models.Model):
     '''
     Model for a step in a workout schedule.
