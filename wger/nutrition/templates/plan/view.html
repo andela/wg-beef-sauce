@@ -97,6 +97,13 @@ function wgerCustomModalInit()
             {% endif %}
             {{ item.ingredient.name }}
 
+            <!-- Add badge for Meal Type -->
+            {% if item.meal_type == 'Planned' %}
+                <span class="label label-info">Planned Meal</span>
+            {% else %}
+                <span class="label label-success">Meal Eaten</span>
+            {% endif %}
+
             {% if is_owner %}
             <span class="editoptions">
                 <a href="{% url 'nutrition:meal_item:delete' item.id %}"
@@ -251,7 +258,7 @@ function wgerCustomModalInit()
 
         {% if is_owner and owner_user.userprofile.calories and plan.has_goal_calories %}
         {% with total=plan.get_calories_approximation %}
-        <tr style="background-color:{% if total == 1 %}#8ae234;{% elif total == 2 %}#fce94f;{% elif total == 3 %}#fcaf3e;{% elif total > 3 %}#ef2929;{% endif %}">
+        <tr style="background-color:{% if total == 1 %} #8ae234; {% elif total == 2 %} #fce94f; {% elif total == 3 %} #fcaf3e; {% elif total > 3 %} #ef2929; {% endif %}">
             <td>{% trans "Goal" %}</td>
             <td class="align-right">
                 <strong>{{owner_user.userprofile.calories}} {% trans "kcal" %}</strong></td>

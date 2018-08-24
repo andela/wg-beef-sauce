@@ -613,6 +613,9 @@ class MealItem(models.Model):
                                  verbose_name=_('Amount'),
                                  validators=[MinValueValidator(1),
                                              MaxValueValidator(1000)])
+    meal_type = models.CharField(default='Planned',
+                                 max_length=15,
+                                 verbose_name=_('Meal Type'))
 
     def __str__(self):
         '''
