@@ -135,7 +135,7 @@ def add(request, pk):
     # Define the formset here because now we know the value to pass to 'extra'
     WorkoutLogFormSet = modelformset_factory(WorkoutLog,
                                              form=WorkoutLogForm,
-                                             exclude=('date', 'workout'),
+                                             exclude=('date', 'workout', 'session_id'),
                                              extra=total_sets)
     # Process the request
     if request.method == 'POST':
@@ -172,6 +172,7 @@ def add(request, pk):
                 session = WorkoutSession.objects.get(user=request.user, date=log_date)
                 instance.instance = session
             instance.save()
+            session_id = instance
 
             # Log entries (only the ones with actual content)
             instances = [i for i in formset.save(commit=False) if i.reps]
@@ -181,6 +182,7 @@ def add(request, pk):
                 instance.user = request.user
                 instance.workout = day.training
                 instance.date = log_date
+                instance.session_id = session_id.id
                 instance.save()
 
             return HttpResponseRedirect(reverse('manager:log:log', kwargs={'pk': day.training_id}))
